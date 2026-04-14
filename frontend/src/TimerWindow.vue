@@ -1,7 +1,7 @@
 <template>
   <div class="timer-window">
     <div class="timer-header">
-      <span class="timer-title" :title="task?.title">{{ task?.title ?? '—' }}</span>
+      <span class="timer-title" :title="task?.title">{{ task?.title ?? '-' }}</span>
       <button class="timer-close" @click="close">✕</button>
     </div>
     <div class="timer-elapsed">{{ formattedElapsed }}</div>

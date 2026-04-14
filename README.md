@@ -1,6 +1,16 @@
 # TimeSpan
 
-Minimal desktop task tracker with per-task timers. Click the clock icon on any running task to pop open a floating always-on-top timer window.
+Minimal desktop task tracker with per-task timers. Start a task, track time, pause and resume freely. Click the clock icon on any running task to pop open a floating always-on-top timer window.
+
+## Features
+
+- Create tasks with an optional description
+- Start, pause, resume, and finish tasks
+- Edit task title and description at any time
+- Continue a finished task (resumes elapsed time)
+- Floating always-on-top timer window per task
+- Pause/resume synced between the main window and the timer window
+- Persistent SQLite storage survives restarts
 
 ## Stack
 
@@ -14,13 +24,18 @@ Minimal desktop task tracker with per-task timers. Click the clock icon on any r
 
 ## Prerequisites
 
-- **Go** 1.21+
+- **Go** 1.23+
 - **Node.js** 18+ and npm
-- **Wails v3 CLI** — install once:
+- **Wails v3 CLI** install once:
   ```sh
   go install github.com/wailsapp/wails/v3/cmd/wails3@latest
   ```
 - macOS: Xcode Command Line Tools (`xcode-select --install`)
+
+> `wails3` must be on your PATH. If installed via `go install`, add `~/go/bin` to your shell's PATH:
+> ```sh
+> export PATH="$HOME/go/bin:$PATH"
+> ```
 
 ## Development
 
@@ -28,61 +43,52 @@ Minimal desktop task tracker with per-task timers. Click the clock icon on any r
 # Install frontend dependencies (first time only)
 cd frontend && npm install && cd ..
 
-# Run in dev mode — hot-reloads Go and frontend on file changes
+# Run in dev mode with hot-reloads for Go and frontend on file changes
 wails3 dev -config ./build/config.yml
 ```
 
-Dev mode opens the main window. The Vite dev server runs on port 9245 by default. Go code is recompiled on save; Vue files hot-reload instantly via Vite HMR.
-
-> **Note:** `wails3` must be on your PATH. If installed via `go install`, add `$GOPATH/bin` (or `~/go/bin`) to your shell's PATH:
-> ```sh
-> export PATH="$HOME/go/bin:$PATH"
-> ```
+Go code recompiles on save; Vue files hot-reload via Vite HMR. The Vite dev server runs on port 9245.
 
 ## Build
 
 ```sh
-# Production build — outputs a native binary to bin/
+# Binary path: bin/timespan
 wails3 build
-
-# macOS: package into a proper .app bundle (required to launch without a Terminal window)
-wails3 task darwin:package
-# → bin/timespan.app  (double-click or drag to /Applications)
 ```
 
 ## Regenerate JS bindings
 
-After changing exported Go methods on `App`, re-run:
+After adding or changing exported methods on `App` in `app.go`:
 
 ```sh
 wails3 generate bindings ./...
 ```
 
-Generated files land in `frontend/bindings/` and are committed to the repo.
+Generated files live in `frontend/bindings/` and are committed to the repo.
 
 ## Project layout
 
 ```
 .
-├── app.go               # Bound service: task CRUD, timer window control, ticker
-├── db.go                # SQLite DB wrapper (goqu)
-├── main.go              # App + window setup (main window + floating timer window)
-├── util.go              # generateID()
-├── build/               # Taskfiles, icons, platform config
-│   └── config.yml       # Product name, identifier, dev-mode config
+├── app.go               # App service: task CRUD, timer window control, tick emitter
+├── db.go                # SQLite wrapper (goqu, modernc/sqlite)
+├── main.go              # Two-window setup: main (400×600) + floating timer (220×100)
+├── utils.go             # generateID()
+├── build/
+│   └──  config.yml       # Product name, identifier, dev-mode config
 ├── frontend/
-│   ├── bindings/        # Auto-generated JS bindings (committed)
-│   │   └── timespan/    # app.js, models.js, index.js
+│   ├── bindings/        # Auto-generated JS bindings
 │   ├── src/
-│   │   ├── App.vue             # Main window shell
+│   │   ├── App.vue             # Main window
 │   │   ├── TimerWindow.vue     # Floating timer OS window
+│   │   ├── timer.js            # Entry point for timer.html
 │   │   ├── components/
-│   │   │   └── TaskCard.vue    # Per-task card with action buttons
+│   │   │   └── TaskCard.vue    # Task card: inline edit, status buttons
 │   │   ├── stores/
-│   │   │   └── taskStore.js    # Pinia store
+│   │   │   └── taskStore.js    # Pinia store; live elapsed via segment tracking
 │   │   └── assets/
-│   │       ├── main.css        # Dark theme for main window
-│   │       └── timer.css       # Styles for timer window
+│   │       ├── main.css        # Dark theme, main window
+│   │       └── timer.css       # Timer window styles
 │   ├── index.html       # Main window entry
 │   └── timer.html       # Timer window entry
 └── go.mod
@@ -98,4 +104,8 @@ Tasks are stored in SQLite at:
 | Linux | `~/.config/TimeSpan/timespan.db` |
 | Windows | `%APPDATA%\TimeSpan\timespan.db` |
 
-Any task left in `running` state when the app closes is reset to `paused` on next startup.
+Any task in `running` state when the app closes is reset to `paused` on next startup.
+
+## License
+
+MIT see [LICENSE](LICENSE).
