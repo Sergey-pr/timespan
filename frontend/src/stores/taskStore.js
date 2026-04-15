@@ -35,8 +35,10 @@ export const useTaskStore = defineStore('tasks', () => {
 
   async function createTask(title, description) {
     const task = await CreateTask(title, description)
-    tasks.value.unshift(task)
-    resetSegment(task)
+    if (task) {
+      tasks.value.unshift(task)
+      resetSegment(task)
+    }
     return task
   }
 

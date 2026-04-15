@@ -328,6 +328,44 @@ button:active { opacity: 0.8; }
   justify-content: flex-end;
 }
 
+/* Error window */
+#error-root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  background: var(--bg);
+}
+
+.error-icon {
+  font-size: 28px;
+  color: var(--danger);
+}
+
+.error-message {
+  font-size: 13px;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.btn-danger-solid {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: inherit;
+  padding: 6px 20px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-danger-solid:hover { opacity: 0.85; }
+
 /* Task actions */
 .task-actions {
   display: flex;

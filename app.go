@@ -7,29 +7,9 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
-type TaskStatus string
-
-const (
-	StatusPending  TaskStatus = "pending"
-	StatusRunning  TaskStatus = "running"
-	StatusPaused   TaskStatus = "paused"
-	StatusFinished TaskStatus = "finished"
-)
-
-type Task struct {
-	ID          string     `json:"id"`
-	Title       string     `json:"title"`
-	Description *string    `json:"description"`
-	Status      TaskStatus `json:"status"`
-	ElapsedMs   int64      `json:"elapsedMs"`
-	StartedAt   *time.Time `json:"startedAt"`
-	CreatedAt   time.Time  `json:"createdAt"`
-	FinishedAt  *time.Time `json:"finishedAt"`
-}
-
 type App struct {
-	db          *DB
 	timerWindow *application.WebviewWindow
+	errorWindow *application.WebviewWindow
 }
 
 func NewApp() *App {
@@ -43,18 +23,29 @@ func (a *App) SetTimerWindow(w *application.WebviewWindow) {
 	a.timerWindow = w
 }
 
+// SetErrorWindow stores the error window reference (called from main before Run).
+//
+//wails:internal
+func (a *App) SetErrorWindow(w *application.WebviewWindow) {
+	a.errorWindow = w
+}
+
+func (a *App) showError(err error) {
+	if err == nil || a.errorWindow == nil {
+		return
+	}
+	application.Get().Event.Emit("app:error", err.Error())
+	a.errorWindow.Show()
+}
+
 // ServiceStartup is called by the Wails v3 service system when the app starts.
 func (a *App) ServiceStartup(ctx context.Context, _ application.ServiceOptions) error {
-	db, err := NewDB()
-	if err != nil {
+	if err := initDB(); err != nil {
 		return err
 	}
-	a.db = db
-
-	if err := a.db.ResetRunningTasks(); err != nil {
+	if err := ResetRunningTasks(); err != nil {
 		return err
 	}
-
 	go a.runTicker(ctx)
 	return nil
 }
@@ -74,160 +65,166 @@ func (a *App) runTicker(ctx context.Context) {
 
 // GetTasks returns all tasks sorted by created_at desc.
 func (a *App) GetTasks() []Task {
-	tasks, err := a.db.GetTasks()
+	tasks, err := GetTasks()
 	if err != nil {
+		a.showError(err)
 		return []Task{}
 	}
 	return tasks
 }
 
 // CreateTask creates a new pending task.
-func (a *App) CreateTask(title string, description string) Task {
-	now := time.Now()
+func (a *App) CreateTask(title string, description string) *Task {
 	var desc *string
 	if description != "" {
 		desc = &description
 	}
-	task := Task{
-		ID:          generateID(),
+	task := &Task{
 		Title:       title,
 		Description: desc,
 		Status:      StatusPending,
-		ElapsedMs:   0,
-		CreatedAt:   now,
 	}
-	_ = a.db.InsertTask(task)
+	if err := task.Save(); err != nil {
+		a.showError(err)
+		return nil
+	}
 	return task
 }
 
 // StartTask pauses any currently running task then starts the given task.
-func (a *App) StartTask(id string) *Task {
-	tasks, err := a.db.GetTasks()
-	if err != nil {
-		return nil
-	}
+func (a *App) StartTask(id int64) *Task {
 	now := time.Now()
 
-	for i := range tasks {
-		if tasks[i].Status == StatusRunning && tasks[i].ID != id {
-			if tasks[i].StartedAt != nil {
-				tasks[i].ElapsedMs += now.Sub(*tasks[i].StartedAt).Milliseconds()
-			}
-			tasks[i].Status = StatusPaused
-			tasks[i].StartedAt = nil
-			_ = a.db.UpdateTask(tasks[i])
-			application.Get().Event.Emit("task:updated", tasks[i])
-		}
-	}
-
-	for i := range tasks {
-		if tasks[i].ID == id {
-			tasks[i].Status = StatusRunning
-			tasks[i].StartedAt = &now
-			tasks[i].FinishedAt = nil
-			_ = a.db.UpdateTask(tasks[i])
-			application.Get().Event.Emit("task:updated", tasks[i])
-			return &tasks[i]
-		}
-	}
-	return nil
-}
-
-// EditTask updates the title and description of a task.
-func (a *App) EditTask(id string, title string, description string) *Task {
-	tasks, err := a.db.GetTasks()
+	running, err := GetRunningTask()
 	if err != nil {
+		a.showError(err)
 		return nil
 	}
-	for i := range tasks {
-		if tasks[i].ID == id {
-			tasks[i].Title = title
-			if description != "" {
-				tasks[i].Description = &description
-			} else {
-				tasks[i].Description = nil
-			}
-			_ = a.db.UpdateTask(tasks[i])
-			application.Get().Event.Emit("task:updated", tasks[i])
-			return &tasks[i]
+	if running != nil && running.ID != id {
+		if running.StartedAt != nil {
+			running.ElapsedMs += now.Sub(*running.StartedAt).Milliseconds()
 		}
+		running.Status = StatusPaused
+		running.StartedAt = nil
+		if err := running.Save(); err != nil {
+			a.showError(err)
+			return nil
+		}
+		application.Get().Event.Emit("task:updated", *running)
 	}
-	return nil
+
+	task, err := GetTaskByID(id)
+	if err != nil {
+		a.showError(err)
+		return nil
+	}
+	task.Status = StatusRunning
+	task.StartedAt = &now
+	task.FinishedAt = nil
+	if err = task.Save(); err != nil {
+		a.showError(err)
+		return nil
+	}
+	application.Get().Event.Emit("task:updated", *task)
+	return task
 }
 
 // PauseTask accumulates elapsed time and pauses the task.
-func (a *App) PauseTask(id string) *Task {
-	tasks, err := a.db.GetTasks()
+func (a *App) PauseTask(id int64) *Task {
+	task, err := GetTaskByID(id)
 	if err != nil {
+		a.showError(err)
 		return nil
 	}
 	now := time.Now()
-	for i := range tasks {
-		if tasks[i].ID == id {
-			if tasks[i].StartedAt != nil {
-				tasks[i].ElapsedMs += now.Sub(*tasks[i].StartedAt).Milliseconds()
-			}
-			tasks[i].Status = StatusPaused
-			tasks[i].StartedAt = nil
-			_ = a.db.UpdateTask(tasks[i])
-			application.Get().Event.Emit("task:updated", tasks[i])
-			return &tasks[i]
-		}
+	if task.StartedAt != nil {
+		task.ElapsedMs += now.Sub(*task.StartedAt).Milliseconds()
 	}
-	return nil
+	task.Status = StatusPaused
+	task.StartedAt = nil
+	if err = task.Save(); err != nil {
+		a.showError(err)
+		return nil
+	}
+	application.Get().Event.Emit("task:updated", *task)
+	return task
 }
 
 // FinishTask accumulates final elapsed time and marks the task done.
-func (a *App) FinishTask(id string) *Task {
-	tasks, err := a.db.GetTasks()
+func (a *App) FinishTask(id int64) *Task {
+	task, err := GetTaskByID(id)
 	if err != nil {
+		a.showError(err)
 		return nil
 	}
 	now := time.Now()
-	for i := range tasks {
-		if tasks[i].ID == id {
-			if tasks[i].StartedAt != nil {
-				tasks[i].ElapsedMs += now.Sub(*tasks[i].StartedAt).Milliseconds()
-			}
-			tasks[i].Status = StatusFinished
-			tasks[i].StartedAt = nil
-			tasks[i].FinishedAt = &now
-			_ = a.db.UpdateTask(tasks[i])
-			application.Get().Event.Emit("task:updated", tasks[i])
-			return &tasks[i]
-		}
+	if task.StartedAt != nil {
+		task.ElapsedMs += now.Sub(*task.StartedAt).Milliseconds()
 	}
-	return nil
+	task.Status = StatusFinished
+	task.StartedAt = nil
+	task.FinishedAt = &now
+	if err = task.Save(); err != nil {
+		a.showError(err)
+		return nil
+	}
+	application.Get().Event.Emit("task:updated", *task)
+	return task
+}
+
+// EditTask updates the title and description of a task.
+func (a *App) EditTask(id int64, title string, description string) *Task {
+	task, err := GetTaskByID(id)
+	if err != nil {
+		a.showError(err)
+		return nil
+	}
+	task.Title = title
+	if description != "" {
+		task.Description = &description
+	} else {
+		task.Description = nil
+	}
+	if err = task.Save(); err != nil {
+		a.showError(err)
+		return nil
+	}
+	application.Get().Event.Emit("task:updated", *task)
+	return task
 }
 
 // DeleteTask removes a task by id.
-func (a *App) DeleteTask(id string) bool {
-	return a.db.DeleteTask(id) == nil
+func (a *App) DeleteTask(id int64) bool {
+	task, err := GetTaskByID(id)
+	if err != nil {
+		a.showError(err)
+		return false
+	}
+	if err = task.Delete(); err != nil {
+		a.showError(err)
+		return false
+	}
+	return true
 }
 
 // GetCurrentElapsed returns live elapsed ms including the active running segment.
-func (a *App) GetCurrentElapsed(id string) int64 {
-	tasks, err := a.db.GetTasks()
+func (a *App) GetCurrentElapsed(id int64) int64 {
+	task, err := GetTaskByID(id)
 	if err != nil {
+		a.showError(err)
 		return 0
 	}
-	for _, t := range tasks {
-		if t.ID == id {
-			if t.Status == StatusRunning && t.StartedAt != nil {
-				return t.ElapsedMs + time.Since(*t.StartedAt).Milliseconds()
-			}
-			return t.ElapsedMs
-		}
+	if task.Status == StatusRunning && task.StartedAt != nil {
+		return task.ElapsedMs + time.Since(*task.StartedAt).Milliseconds()
 	}
-	return 0
+	return task.ElapsedMs
 }
 
 // OpenTimerWindow shows the floating timer OS window for the given task.
-func (a *App) OpenTimerWindow(id string) {
+func (a *App) OpenTimerWindow(id int64) {
 	if a.timerWindow == nil {
 		return
 	}
-	// Emit the task id so the timer window knows what to display.
 	application.Get().Event.Emit("timer:open", id)
 	a.timerWindow.Show()
 	a.timerWindow.SetAlwaysOnTop(true)
@@ -237,5 +234,12 @@ func (a *App) OpenTimerWindow(id string) {
 func (a *App) CloseTimerWindow() {
 	if a.timerWindow != nil {
 		a.timerWindow.Hide()
+	}
+}
+
+// CloseErrorWindow hides the error window.
+func (a *App) CloseErrorWindow() {
+	if a.errorWindow != nil {
+		a.errorWindow.Hide()
 	}
 }

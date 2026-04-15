@@ -54,6 +54,18 @@ func main() {
 
 	appService.SetTimerWindow(timerWindow)
 
+	// Error window
+	errorWindow := app.Window.NewWithOptions(application.WebviewWindowOptions{
+		Title:         "Error",
+		Width:         420,
+		Height:        160,
+		AlwaysOnTop:   true,
+		DisableResize: true,
+		Hidden:        true,
+		URL:           "/error.html",
+	})
+	appService.SetErrorWindow(errorWindow)
+
 	if err := app.Run(); err != nil {
 		log.Fatal(err)
 	}

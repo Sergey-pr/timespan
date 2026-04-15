@@ -2,6 +2,7 @@ bin/
 build/bin/
 timespan
 timespan.exe
+identifier.sqlite
 
 *.test
 *.out
