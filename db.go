@@ -26,10 +26,6 @@ func initDB() error {
 
 	dbPath := filepath.Join(dir, "timespan.db")
 
-	if err := migrateDB(dbPath); err != nil {
-		return err
-	}
-
 	sqlDB, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return err
@@ -37,6 +33,10 @@ func initDB() error {
 	sqlDB.SetMaxOpenConns(1)
 
 	if err := sqlDB.Ping(); err != nil {
+		return err
+	}
+
+	if err := migrateDB(sqlDB); err != nil {
 		return err
 	}
 
