@@ -26,7 +26,7 @@
           <template v-else-if="task.status === 'running'">
             <button class="btn-ghost" @click="$emit('pause', task.id)">Pause</button>
             <button class="btn-ghost" @click="$emit('finish', task.id)">Finish</button>
-            <button class="btn-icon" title="Float timer" @click="$emit('open-timer', task.id)">🕐</button>
+            <button class="btn-ghost" @click="$emit('open-timer', task.id)">Timer</button>
           </template>
           <template v-else-if="task.status === 'paused'">
             <button class="btn-primary" @click="$emit('start', task.id)">Resume</button>

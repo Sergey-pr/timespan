@@ -29,7 +29,8 @@ func migrateDB(db *sql.DB) error {
 		version := strings.TrimSuffix(entry.Name(), ".sql")
 
 		var exists bool
-		if err = db.QueryRow(`SELECT 1 FROM schema_migrations WHERE version = ?`, version).Scan(&exists); err != nil && !errors.Is(err, sql.ErrNoRows) {
+		if err = db.QueryRow(`SELECT 1 FROM schema_migrations WHERE version = ?`, version).
+			Scan(&exists); err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return fmt.Errorf("check migration %s: %w", version, err)
 		}
 		if exists {
