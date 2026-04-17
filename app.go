@@ -2,25 +2,19 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 type App struct {
-	timerWindow *application.WebviewWindow
-	errorWindow *application.WebviewWindow
+	timerWindows map[int64]*application.WebviewWindow
+	errorWindow  *application.WebviewWindow
 }
 
 func NewApp() *App {
-	return &App{}
-}
-
-// SetTimerWindow stores the floating timer window reference (called from main before Run).
-//
-//wails:internal
-func (a *App) SetTimerWindow(w *application.WebviewWindow) {
-	a.timerWindow = w
+	return &App{timerWindows: make(map[int64]*application.WebviewWindow)}
 }
 
 // SetErrorWindow stores the error window reference (called from main before Run).
@@ -220,20 +214,33 @@ func (a *App) GetCurrentElapsed(id int64) int64 {
 	return task.ElapsedMs
 }
 
-// OpenTimerWindow shows the floating timer OS window for the given task.
+// OpenTimerWindow shows (or creates) the floating timer window for the given task.
 func (a *App) OpenTimerWindow(id int64) {
-	if a.timerWindow == nil {
+	if w, ok := a.timerWindows[id]; ok {
+		w.Show()
+		w.Focus()
 		return
 	}
-	application.Get().Event.Emit("timer:open", id)
-	a.timerWindow.Show()
-	a.timerWindow.SetAlwaysOnTop(true)
+	w := application.Get().Window.NewWithOptions(application.WebviewWindowOptions{
+		Name:           fmt.Sprintf("timer-%d", id),
+		Title:          "Timer",
+		Width:          220,
+		Height:         100,
+		AlwaysOnTop:    true,
+		Frameless:      true,
+		DisableResize:  true,
+		BackgroundType: application.BackgroundTypeTransparent,
+		URL:            fmt.Sprintf("/timer.html?taskId=%d", id),
+		HideOnEscape:   true,
+	})
+	a.timerWindows[id] = w
 }
 
-// CloseTimerWindow hides the floating timer OS window.
-func (a *App) CloseTimerWindow() {
-	if a.timerWindow != nil {
-		a.timerWindow.Hide()
+// CloseTimerWindow hides the floating timer window for the given task.
+func (a *App) CloseTimerWindow(id int64) {
+	if w, ok := a.timerWindows[id]; ok {
+		w.Hide()
+		delete(a.timerWindows, id)
 	}
 }
 

@@ -27,6 +27,8 @@ const baseElapsed = ref(0)
 const segStart = ref(null)
 const now = ref(Date.now())
 
+const taskId = parseInt(new URLSearchParams(window.location.search).get('taskId') ?? '0', 10)
+
 const liveElapsed = computed(() => {
   if (task.value?.status === 'running' && segStart.value !== null) {
     return baseElapsed.value + (now.value - segStart.value)
@@ -43,9 +45,10 @@ const formattedElapsed = computed(() => {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 })
 
-async function loadTask(id) {
+async function loadTask() {
+  if (!taskId) return
   const tasks = await GetTasks()
-  const found = tasks.find(t => t.id === id)
+  const found = tasks.find(t => t.id === taskId)
   if (found) {
     task.value = found
     baseElapsed.value = found.elapsedMs
@@ -57,14 +60,9 @@ function onTick() {
   now.value = Date.now()
 }
 
-function onTimerOpen(ev) {
-  const id = ev.data
-  if (id) loadTask(id)
-}
-
 function onTaskUpdated(ev) {
   const updated = ev.data
-  if (!updated || updated.id !== task.value?.id) return
+  if (!updated || updated.id !== taskId) return
   task.value = updated
   baseElapsed.value = updated.elapsedMs
   segStart.value = updated.startedAt ? new Date(updated.startedAt).getTime() : null
@@ -92,19 +90,18 @@ async function resume() {
 }
 
 function close() {
-  CloseTimerWindow()
+  CloseTimerWindow(taskId)
 }
 
-let offTick, offTimerOpen, offTaskUpdated
-onMounted(() => {
+let offTick, offTaskUpdated
+onMounted(async () => {
+  await loadTask()
   offTick = Events.On('tick', onTick)
-  offTimerOpen = Events.On('timer:open', onTimerOpen)
   offTaskUpdated = Events.On('task:updated', onTaskUpdated)
 })
 
 onUnmounted(() => {
   offTick?.()
-  offTimerOpen?.()
   offTaskUpdated?.()
 })
 </script>

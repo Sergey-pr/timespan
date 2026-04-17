@@ -38,22 +38,6 @@ func main() {
 		URL:              "/",
 	})
 
-	// Floating timer window
-	timerWindow := app.Window.NewWithOptions(application.WebviewWindowOptions{
-		Title:          "Timer",
-		Width:          220,
-		Height:         100,
-		AlwaysOnTop:    true,
-		Frameless:      true,
-		DisableResize:  true,
-		Hidden:         true,
-		BackgroundType: application.BackgroundTypeTransparent,
-		URL:            "/timer.html",
-		HideOnEscape:   true,
-	})
-
-	appService.SetTimerWindow(timerWindow)
-
 	// Error window
 	errorWindow := app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title:         "Error",

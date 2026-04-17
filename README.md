@@ -14,13 +14,12 @@ Minimal desktop task tracker with per-task timers. Start a task, track time, pau
 
 ## Stack
 
-| Layer | Tech |
-|---|---|
+| Layer         | Tech                                                  |
+|---------------|-------------------------------------------------------|
 | App framework | [Wails v3](https://v3.wails.io) (Go + native WebView) |
-| Language | Go 1.23+ |
-| UI | Vue 3 (Composition API) + Pinia + Vite |
-| Database | SQLite via `modernc.org/sqlite` (pure Go, no CGo) |
-| Query builder | `goqu` v9 |
+| Language      | Go 1.23+                                              |
+| UI            | Vue 3 (Composition API) + Pinia + Vite                |
+| Database      | SQLite via `github.com/doug-martin/goqu`              |
 
 ## Prerequisites
 
@@ -30,7 +29,6 @@ Minimal desktop task tracker with per-task timers. Start a task, track time, pau
   ```sh
   go install github.com/wailsapp/wails/v3/cmd/wails3@latest
   ```
-- macOS: Xcode Command Line Tools (`xcode-select --install`)
 
 > `wails3` must be on your PATH. If installed via `go install`, add `~/go/bin` to your shell's PATH:
 > ```sh
@@ -98,11 +96,11 @@ Generated files live in `frontend/bindings/` and are committed to the repo.
 
 Tasks are stored in SQLite at:
 
-| Platform | Path |
-|---|---|
-| macOS | `~/Library/Application Support/TimeSpan/timespan.db` |
-| Linux | `~/.config/TimeSpan/timespan.db` |
-| Windows | `%APPDATA%\TimeSpan\timespan.db` |
+| Platform | Path                                                 |
+|----------|------------------------------------------------------|
+| macOS    | `~/Library/Application Support/TimeSpan/timespan.db` |
+| Linux    | `~/.config/TimeSpan/timespan.db`                     |
+| Windows  | `%APPDATA%\TimeSpan\timespan.db`                     |
 
 Any task in `running` state when the app closes is reset to `paused` on next startup.
 
