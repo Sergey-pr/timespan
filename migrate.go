@@ -57,11 +57,11 @@ func migrateDB(db *sql.DB) error {
 			return fmt.Errorf("begin migration %s: %w", version, err)
 		}
 		if _, err := tx.Exec(up); err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return fmt.Errorf("run migration %s: %w", version, err)
 		}
 		if _, err := tx.Exec(`INSERT INTO schema_migrations (version) VALUES (?)`, version); err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return fmt.Errorf("record migration %s: %w", version, err)
 		}
 		if err := tx.Commit(); err != nil {
