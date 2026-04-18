@@ -9,6 +9,11 @@ import (
 	"strings"
 )
 
+const (
+	migrateUpAtom   = "-- migrate:up"
+	migrateDownAtom = "-- migrate:down"
+)
+
 //go:embed migrations/*.sql
 var migrationsFS embed.FS
 
@@ -69,12 +74,12 @@ func migrateDB(db *sql.DB) error {
 
 // extractUp returns the SQL between "-- migrate:up" and "-- migrate:down" (or EOF).
 func extractUp(content string) string {
-	start := strings.Index(content, "-- migrate:up")
+	start := strings.Index(content, migrateUpAtom)
 	if start == -1 {
 		return ""
 	}
-	content = content[start+len("-- migrate:up"):]
-	if end := strings.Index(content, "-- migrate:down"); end != -1 {
+	content = content[start+len(migrateUpAtom):]
+	if end := strings.Index(content, migrateDownAtom); end != -1 {
 		content = content[:end]
 	}
 	return strings.TrimSpace(content)
