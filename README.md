@@ -68,9 +68,9 @@ Generated files live in `frontend/bindings/` and are committed to the repo.
 
 ```
 .
-├── app.go               # App service: task CRUD, timer window control, tick emitter
+├── app.go               # App service: task CRUD, timer + error window control, tick emitter
 ├── db.go                # SQLite wrapper (goqu, modernc/sqlite)
-├── main.go              # Two-window setup: main (400×600) + floating timer (220×100)
+├── main.go              # Three-window setup: main (400×600) + floating timer (220×100) + error (420×160)
 ├── utils.go             # generateID()
 ├── build/
 │   └──  config.yml       # Product name, identifier, dev-mode config
@@ -79,7 +79,10 @@ Generated files live in `frontend/bindings/` and are committed to the repo.
 │   ├── src/
 │   │   ├── App.vue             # Main window
 │   │   ├── TimerWindow.vue     # Floating timer OS window
+│   │   ├── ErrorWindow.vue     # Error dialog window
+│   │   ├── main.js             # Entry point for index.html
 │   │   ├── timer.js            # Entry point for timer.html
+│   │   ├── error.js            # Entry point for error.html
 │   │   ├── components/
 │   │   │   └── TaskCard.vue    # Task card: inline edit, status buttons
 │   │   ├── stores/
@@ -88,7 +91,8 @@ Generated files live in `frontend/bindings/` and are committed to the repo.
 │   │       ├── main.css        # Dark theme, main window
 │   │       └── timer.css       # Timer window styles
 │   ├── index.html       # Main window entry
-│   └── timer.html       # Timer window entry
+│   ├── timer.html       # Timer window entry
+│   └── error.html       # Error window entry
 └── go.mod
 ```
 
