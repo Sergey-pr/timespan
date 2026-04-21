@@ -24,14 +24,14 @@ import {
 
 const task = ref(null)
 const baseElapsed = ref(0)
-const segStart = ref(null)
+const segmentStartedAt = ref(null)
 const now = ref(Date.now())
 
 const taskId = parseInt(new URLSearchParams(window.location.search).get('taskId') ?? '0', 10)
 
 const liveElapsed = computed(() => {
-  if (task.value?.status === 'running' && segStart.value !== null) {
-    return baseElapsed.value + (now.value - segStart.value)
+  if (task.value?.status === 'running' && segmentStartedAt.value !== null) {
+    return baseElapsed.value + (now.value - segmentStartedAt.value)
   }
   return baseElapsed.value
 })
@@ -52,7 +52,7 @@ async function loadTask() {
   if (found) {
     task.value = found
     baseElapsed.value = found.elapsedMs
-    segStart.value = found.startedAt ? new Date(found.startedAt).getTime() : null
+    segmentStartedAt.value = found.startedAt ? new Date(found.startedAt).getTime() : null
   }
 }
 
@@ -65,7 +65,7 @@ function onTaskUpdated(ev) {
   if (!updated || updated.id !== taskId) return
   task.value = updated
   baseElapsed.value = updated.elapsedMs
-  segStart.value = updated.startedAt ? new Date(updated.startedAt).getTime() : null
+  segmentStartedAt.value = updated.startedAt ? new Date(updated.startedAt).getTime() : null
   now.value = Date.now()
 }
 
@@ -75,7 +75,7 @@ async function pause() {
   if (updated) {
     task.value = updated
     baseElapsed.value = updated.elapsedMs
-    segStart.value = null
+    segmentStartedAt.value = null
   }
 }
 
@@ -85,7 +85,7 @@ async function resume() {
   if (updated) {
     task.value = updated
     baseElapsed.value = updated.elapsedMs
-    segStart.value = updated.startedAt ? new Date(updated.startedAt).getTime() : Date.now()
+    segmentStartedAt.value = updated.startedAt ? new Date(updated.startedAt).getTime() : Date.now()
   }
 }
 
