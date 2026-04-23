@@ -18,8 +18,6 @@ func NewApp() *App {
 }
 
 // SetErrorWindow stores the error window reference (called from main before Run).
-//
-//wails:internal
 func (a *App) SetErrorWindow(w *application.WebviewWindow) {
 	a.errorWindow = w
 }
