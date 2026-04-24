@@ -38,11 +38,11 @@ func (a *App) ServiceStartup(ctx context.Context, _ application.ServiceOptions) 
 	if err := ResetRunningTasks(); err != nil {
 		return err
 	}
-	go a.runTicker(ctx)
+	go a.runTimer(ctx)
 	return nil
 }
 
-func (a *App) runTicker(ctx context.Context) {
+func (a *App) runTimer(ctx context.Context) {
 	ticker := time.NewTicker(500 * time.Millisecond)
 	defer ticker.Stop()
 	for {
