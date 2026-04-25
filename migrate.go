@@ -17,6 +17,7 @@ const (
 //go:embed migrations/*.sql
 var migrationsFS embed.FS
 
+// migrateDB  Migrates the database with dbmate style migrations, added to not include CGO which is required for dbmate
 func migrateDB(db *sql.DB) error {
 	if _, err := db.Exec(`CREATE TABLE IF NOT EXISTS schema_migrations (
 		version TEXT PRIMARY KEY,
