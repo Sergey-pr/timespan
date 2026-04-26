@@ -1,6 +1,7 @@
 # TimeSpan
 
-Minimal desktop task tracker with per-task timers. Start a task, track time, pause and resume freely. Click the clock icon on any running task to pop open a floating always-on-top timer window.
+Minimal desktop task tracker with per-task timers. Start a task, track time, pause and resume freely.
+Click the clock icon on any running task to pop open a floating always-on-top timer window.
 
 ## Features
 
