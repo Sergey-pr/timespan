@@ -3,6 +3,9 @@
 Minimal desktop task tracker with per-task timers. Start a task, track time, pause and resume freely.
 Click the clock icon on any running task to pop open a floating always-on-top timer window.
 
+<img alt="Screenshot" height="600" src="/.github/assets/screenshot1.png" width="400"/>
+<img alt="Screenshot" height="100" src="/.github/assets/screenshot2.png" width="220"/>
+
 ## Features
 
 - Create tasks with an optional description
