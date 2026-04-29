@@ -54,7 +54,6 @@ Go code recompiles on save; Vue files hot-reload via Vite HMR. The Vite dev serv
 ## Build
 
 ```sh
-# Binary path: bin/timespan
 wails3 build
 ```
 
