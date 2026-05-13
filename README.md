@@ -67,38 +67,6 @@ wails3 generate bindings ./...
 
 Generated files live in `frontend/bindings/` and are committed to the repo.
 
-## Project layout
-
-```
-.
-├── app.go               # App service: task CRUD, timer + error window control, tick emitter
-├── db.go                # SQLite wrapper (goqu, modernc/sqlite)
-├── main.go              # Three-window setup: main (400×600) + floating timer (220×100) + error (420×160)
-├── utils.go             # generateID()
-├── build/
-│   └──  config.yml       # Product name, identifier, dev-mode config
-├── frontend/
-│   ├── bindings/        # Auto-generated JS bindings
-│   ├── src/
-│   │   ├── App.vue             # Main window
-│   │   ├── TimerWindow.vue     # Floating timer OS window
-│   │   ├── ErrorWindow.vue     # Error dialog window
-│   │   ├── main.js             # Entry point for index.html
-│   │   ├── timer.js            # Entry point for timer.html
-│   │   ├── error.js            # Entry point for error.html
-│   │   ├── components/
-│   │   │   └── TaskCard.vue    # Task card: inline edit, status buttons
-│   │   ├── stores/
-│   │   │   └── taskStore.js    # Pinia store; live elapsed via segment tracking
-│   │   └── assets/
-│   │       ├── main.css        # Dark theme, main window
-│   │       └── timer.css       # Timer window styles
-│   ├── index.html       # Main window entry
-│   ├── timer.html       # Timer window entry
-│   └── error.html       # Error window entry
-└── go.mod
-```
-
 ## Data
 
 Tasks are stored in SQLite at:
