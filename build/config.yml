@@ -8,7 +8,7 @@ info:
   companyName: "SergeiPro" # The name of the company
   productName: "TimeSpan" # The name of the application
   productIdentifier: "com.timespan.app" # The unique product identifier
-  description: "A program that does X" # The application description
+  description: "A task time management app" # The application description
   copyright: "(c) 2026, SergeiPro" # Copyright text
   comments: "Some Product Comments" # Comments
   version: "0.0.1" # The application version
