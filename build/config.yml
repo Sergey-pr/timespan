@@ -10,7 +10,7 @@ info:
   productIdentifier: "com.timespan.app" # The unique product identifier
   description: "A task time management app" # The application description
   copyright: "(c) 2026, SergeiPro" # Copyright text
-  comments: "Some Product Comments" # Comments
+  comments: "Opensource" # Comments
   version: "0.0.1" # The application version
   # cfBundleIconName: "appicon" # The macOS icon name in Assets.car icon bundles (optional)
   #                               # Should match the name of your .icon file without the extension
