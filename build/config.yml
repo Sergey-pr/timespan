@@ -35,7 +35,3 @@ dev_mode:
       type: background
     - cmd: wails3 task run
       type: primary
-
-# Other data
-other:
-  - name: My Other Data
