@@ -458,7 +458,7 @@ button:active { opacity: 0.8; }
   border-radius: 3px;
   background: rgba(108,99,255,0.12);
   color: var(--accent);
-  max-width: 120px;
+  max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
