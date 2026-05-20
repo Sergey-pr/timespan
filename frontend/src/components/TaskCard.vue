@@ -5,6 +5,17 @@
       <div class="task-edit-form">
         <input v-model="editTitle" class="edit-input" placeholder="Title" @keydown.enter="saveEdit" @keydown.escape="cancelEdit" />
         <textarea v-model="editDesc" class="edit-textarea" placeholder="Description (optional)" rows="2" @keydown.escape="cancelEdit" />
+
+        <!-- Category row in edit mode -->
+        <div class="category-row">
+          <select v-model="editCategoryId" class="category-select">
+            <option :value="null">Без категории</option>
+            <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+              {{ cat.name }}
+            </option>
+          </select>
+        </div>
+
         <div class="edit-actions">
           <button class="btn-primary" @click="saveEdit">Save</button>
           <button class="btn-ghost" @click="cancelEdit">Cancel</button>
@@ -42,16 +53,18 @@
       <div class="task-meta">
         <span class="elapsed">{{ formatElapsed(task.elapsedMs) }}</span>
         <span class="status-badge" :class="task.status">{{ task.status }}</span>
+        <span v-if="categoryName" class="category-badge">{{ categoryName }}</span>
       </div>
     </template>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const props = defineProps({
-  task: { type: Object, required: true },
+  task:       { type: Object, required: true },
+  categories: { type: Array,  default: () => [] },
 })
 
 const emit = defineEmits(['start', 'pause', 'finish', 'edit', 'delete', 'open-timer'])
@@ -59,17 +72,29 @@ const emit = defineEmits(['start', 'pause', 'finish', 'edit', 'delete', 'open-ti
 const editing = ref(false)
 const editTitle = ref('')
 const editDesc = ref('')
+const editCategoryId = ref(null)
+
+const categoryName = computed(() => {
+  if (!props.task.categoryId) return null
+  return props.categories.find(c => c.id === props.task.categoryId)?.name ?? null
+})
 
 function startEdit() {
   editTitle.value = props.task.title
   editDesc.value = props.task.description ?? ''
+  editCategoryId.value = props.task.categoryId ?? null
   editing.value = true
 }
 
 function saveEdit() {
   const title = editTitle.value.trim()
   if (!title) return
-  emit('edit', { id: props.task.id, title, description: editDesc.value.trim() })
+  emit('edit', {
+    id:          props.task.id,
+    title,
+    description: editDesc.value.trim(),
+    categoryId:  editCategoryId.value,
+  })
   editing.value = false
 }
 

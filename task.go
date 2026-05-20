@@ -22,6 +22,7 @@ type Task struct {
 	ID          int64      `db:"id"          json:"id"          goqu:"skipinsert,skipupdate"`
 	Title       string     `db:"title"       json:"title"`
 	Description *string    `db:"description" json:"description,omitempty"`
+	CategoryID  *int64     `db:"category_id" json:"categoryId,omitempty"`
 	Status      TaskStatus `db:"status"      json:"status"`
 	ElapsedMs   int64      `db:"elapsed_ms"  json:"elapsedMs"`
 	StartedAt   *time.Time `db:"started_at"  json:"startedAt"`

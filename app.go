@@ -65,15 +65,40 @@ func (a *App) GetTasks() []Task {
 	return tasks
 }
 
-// CreateTask creates a new pending task.
-func (a *App) CreateTask(title string, description string) *Task {
+// GetCategories returns all categories sorted alphabetically.
+func (a *App) GetCategories() []Category {
+	cats, err := GetCategories()
+	if err != nil {
+		a.showError(err)
+		return []Category{}
+	}
+	return cats
+}
+
+// CreateCategory creates a new category with the given name.
+func (a *App) CreateCategory(name string) *Category {
+	cat := &Category{Name: name}
+	if err := cat.Save(); err != nil {
+		a.showError(err)
+		return nil
+	}
+	return cat
+}
+
+// CreateTask creates a new pending task. categoryID == 0 means no category.
+func (a *App) CreateTask(title string, description string, categoryID int64) *Task {
 	var desc *string
 	if description != "" {
 		desc = &description
 	}
+	var catID *int64
+	if categoryID != 0 {
+		catID = &categoryID
+	}
 	task := &Task{
 		Title:       title,
 		Description: desc,
+		CategoryID:  catID,
 		Status:      StatusPending,
 	}
 	if err := task.Save(); err != nil {
@@ -164,8 +189,8 @@ func (a *App) FinishTask(id int64) *Task {
 	return task
 }
 
-// EditTask updates the title and description of a task.
-func (a *App) EditTask(id int64, title string, description string) *Task {
+// EditTask updates the title, description and category of a task. categoryID == 0 clears the category.
+func (a *App) EditTask(id int64, title string, description string, categoryID int64) *Task {
 	task, err := GetTaskByID(id)
 	if err != nil {
 		a.showError(err)
@@ -176,6 +201,11 @@ func (a *App) EditTask(id int64, title string, description string) *Task {
 		task.Description = &description
 	} else {
 		task.Description = nil
+	}
+	if categoryID != 0 {
+		task.CategoryID = &categoryID
+	} else {
+		task.CategoryID = nil
 	}
 	if err = task.Save(); err != nil {
 		a.showError(err)

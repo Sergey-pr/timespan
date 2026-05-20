@@ -11,10 +11,13 @@ import {
   EditTask,
   OpenTimerWindow,
   CloseTimerWindow,
+  GetCategories,
+  CreateCategory,
 } from '../../bindings/timespan/app.js'
 
 export const useTaskStore = defineStore('tasks', () => {
   const tasks = ref([])
+  const categories = ref([])
 
   const activeTasks = computed(() =>
     tasks.value.filter(t => t.status !== 'finished')
@@ -33,8 +36,18 @@ export const useTaskStore = defineStore('tasks', () => {
     tasks.value.forEach(resetSegment)
   }
 
-  async function createTask(title, description) {
-    const task = await CreateTask(title, description)
+  async function loadCategories() {
+    categories.value = await GetCategories()
+  }
+
+  async function createCategory(name) {
+    const cat = await CreateCategory(name)
+    if (cat) categories.value.push(cat)
+    return cat
+  }
+
+  async function createTask(title, description, categoryId) {
+    const task = await CreateTask(title, description, categoryId ?? 0)
     if (task) {
       tasks.value.unshift(task)
       resetSegment(task)
@@ -60,8 +73,8 @@ export const useTaskStore = defineStore('tasks', () => {
     return updated
   }
 
-  async function editTask(id, title, description) {
-    const updated = await EditTask(id, title, description)
+  async function editTask(id, title, description, categoryId) {
+    const updated = await EditTask(id, title, description, categoryId ?? 0)
     if (updated) applyUpdate(updated)
     return updated
   }
@@ -113,10 +126,13 @@ export const useTaskStore = defineStore('tasks', () => {
 
   return {
     tasks,
+    categories,
     activeTasks,
     finishedTasks,
     runningTask,
     loadTasks,
+    loadCategories,
+    createCategory,
     createTask,
     startTask,
     pauseTask,
