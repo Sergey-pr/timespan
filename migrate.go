@@ -73,7 +73,7 @@ func migrateDB(db *sql.DB) error {
 	return nil
 }
 
-// extractUp returns the SQL between "-- migrate:up" and "-- migrate:down" (or EOF).
+// extractUp returns the SQL between "-- migrate:up" and "-- migrate:down"
 func extractUp(content string) string {
 	start := strings.Index(content, migrateUpAtom)
 	if start == -1 {
