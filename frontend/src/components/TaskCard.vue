@@ -9,7 +9,7 @@
         <!-- Category row in edit mode -->
         <div class="category-row">
           <select v-model="editCategoryId" class="category-select">
-            <option :value="null">Без категории</option>
+            <option :value="null">No category</option>
             <option v-for="cat in categories" :key="cat.id" :value="cat.id">
               {{ cat.name }}
             </option>

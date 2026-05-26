@@ -31,6 +31,29 @@ export const useTaskStore = defineStore('tasks', () => {
     tasks.value.find(t => t.status === 'running') ?? null
   )
 
+  // Groups a task list by category: named categories sorted A–Z, uncategorised last.
+  // Returns [{ category: Category|null, tasks: Task[] }, ...]
+  function groupByCategory(taskList) {
+    const map = new Map()
+    for (const task of taskList) {
+      const key = task.categoryId ?? 0
+      if (!map.has(key)) {
+        const cat = key ? (categories.value.find(c => c.id === key) ?? null) : null
+        map.set(key, { category: cat, tasks: [] })
+      }
+      map.get(key).tasks.push(task)
+    }
+    return [...map.values()].sort((a, b) => {
+      if (!a.category && !b.category) return 0
+      if (!a.category) return 1
+      if (!b.category) return -1
+      return a.category.name.localeCompare(b.category.name)
+    })
+  }
+
+  const activeByCategory = computed(() => groupByCategory(activeTasks.value))
+  const finishedByCategory = computed(() => groupByCategory(finishedTasks.value))
+
   async function loadTasks() {
     tasks.value = await GetTasks()
     tasks.value.forEach(resetSegment)
@@ -129,6 +152,8 @@ export const useTaskStore = defineStore('tasks', () => {
     categories,
     activeTasks,
     finishedTasks,
+    activeByCategory,
+    finishedByCategory,
     runningTask,
     loadTasks,
     loadCategories,

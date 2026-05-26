@@ -21,12 +21,12 @@
         <!-- Category row -->
         <div class="category-row">
           <select v-model="newCategoryId" class="category-select">
-            <option :value="null">Без категории</option>
+            <option :value="null">No category</option>
             <option v-for="cat in store.categories" :key="cat.id" :value="cat.id">
               {{ cat.name }}
             </option>
           </select>
-          <button type="button" class="btn-add-cat" title="Новая категория" @click="openNewCat">+</button>
+          <button type="button" class="btn-add-cat" title="New category" @click="openNewCat">+</button>
         </div>
 
         <!-- Inline new-category input -->
@@ -35,12 +35,12 @@
             ref="catInputRef"
             v-model="newCatName"
             class="new-cat-input"
-            placeholder="Название категории…"
+            placeholder="Category name…"
             @keydown.enter.prevent="addCategory"
             @keydown.escape="cancelNewCat"
           />
-          <button type="button" class="btn-icon" title="Сохранить" @click="addCategory">✓</button>
-          <button type="button" class="btn-icon" title="Отмена" @click="cancelNewCat">✕</button>
+          <button type="button" class="btn-icon" title="Save" @click="addCategory">✓</button>
+          <button type="button" class="btn-icon" title="Cancel" @click="cancelNewCat">✕</button>
         </div>
 
         <div class="form-actions">
@@ -48,42 +48,59 @@
         </div>
       </form>
 
-      <!-- Active tasks -->
+      <!-- Active tasks grouped by category -->
       <div v-if="store.activeTasks.length">
         <div class="section-header">Tasks</div>
-        <div class="task-list" style="margin-top:6px">
-          <TaskCard
-            v-for="task in store.activeTasks"
-            :key="task.id"
-            :task="task"
-            :categories="store.categories"
-            @start="store.startTask($event)"
-            @pause="store.pauseTask($event)"
-            @finish="store.finishTask($event)"
-            @edit="e => store.editTask(e.id, e.title, e.description, e.categoryId)"
-            @delete="store.deleteTask($event)"
-            @open-timer="store.openTimer($event)"
-          />
-        </div>
+        <template v-for="group in store.activeByCategory" :key="group.category?.id ?? 0">
+          <!-- Category sub-header: show when there are multiple groups or the only group has a name -->
+          <div
+            v-if="store.activeByCategory.length > 1 || group.category"
+            class="category-group-header"
+          >
+            {{ group.category ? group.category.name : 'No category' }}
+          </div>
+          <div class="task-list">
+            <TaskCard
+              v-for="task in group.tasks"
+              :key="task.id"
+              :task="task"
+              :categories="store.categories"
+              @start="store.startTask($event)"
+              @pause="store.pauseTask($event)"
+              @finish="store.finishTask($event)"
+              @edit="e => store.editTask(e.id, e.title, e.description, e.categoryId)"
+              @delete="store.deleteTask($event)"
+              @open-timer="store.openTimer($event)"
+            />
+          </div>
+        </template>
       </div>
 
-      <!-- Finished tasks (collapsible) -->
+      <!-- Finished tasks (collapsible) grouped by category -->
       <div v-if="store.finishedTasks.length">
         <button class="done-toggle" @click="doneOpen = !doneOpen">
           <span class="chevron" :class="{ open: doneOpen }">›</span>
           Done ({{ store.finishedTasks.length }})
         </button>
-        <div v-if="doneOpen" class="task-list" style="margin-top:6px">
-          <TaskCard
-            v-for="task in store.finishedTasks"
-            :key="task.id"
-            :task="task"
-            :categories="store.categories"
-            @start="store.startTask($event)"
-            @edit="e => store.editTask(e.id, e.title, e.description, e.categoryId)"
-            @delete="store.deleteTask($event)"
-          />
-        </div>
+        <template v-if="doneOpen" v-for="group in store.finishedByCategory" :key="group.category?.id ?? 0">
+          <div
+            v-if="store.finishedByCategory.length > 1 || group.category"
+            class="category-group-header"
+          >
+            {{ group.category ? group.category.name : 'No category' }}
+          </div>
+          <div class="task-list">
+            <TaskCard
+              v-for="task in group.tasks"
+              :key="task.id"
+              :task="task"
+              :categories="store.categories"
+              @start="store.startTask($event)"
+              @edit="e => store.editTask(e.id, e.title, e.description, e.categoryId)"
+              @delete="store.deleteTask($event)"
+            />
+          </div>
+        </template>
       </div>
     </div>
   </div>

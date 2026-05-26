@@ -375,6 +375,17 @@ button:active { opacity: 0.8; }
   flex-shrink: 0;
 }
 
+/* Category group sub-header (within active/finished sections) */
+.category-group-header {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  opacity: 0.7;
+  padding: 8px 2px 4px;
+}
+
 /* Category row (form + edit mode) */
 .category-row {
   display: flex;
