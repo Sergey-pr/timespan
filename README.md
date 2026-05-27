@@ -13,7 +13,7 @@ Click the clock icon on any running task to pop open a floating always-on-top ti
 
 - Create tasks with an optional description
 - Start, pause, resume, and finish tasks
-- Set custom categories to tasks
+- Set custom categories to tasks for grouping
 - Edit task title and description at any time
 - Continue a finished task (resumes elapsed time)
 - Floating always-on-top timer window per task
