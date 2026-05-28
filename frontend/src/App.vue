@@ -26,21 +26,7 @@
               {{ cat.name }}
             </option>
           </select>
-          <button type="button" class="btn-add-cat" title="New category" @click="openNewCat">+</button>
-        </div>
-
-        <!-- Inline new-category input -->
-        <div v-if="showNewCat" class="new-cat-row">
-          <input
-            ref="catInputRef"
-            v-model="newCatName"
-            class="new-cat-input"
-            placeholder="Category name…"
-            @keydown.enter.prevent="addCategory"
-            @keydown.escape="cancelNewCat"
-          />
-          <button type="button" class="btn-icon" title="Save" @click="addCategory">✓</button>
-          <button type="button" class="btn-icon" title="Cancel" @click="cancelNewCat">✕</button>
+          <button type="button" class="btn-add-cat" title="New category" @click="showCategoryModal = true">+</button>
         </div>
 
         <div class="form-actions">
@@ -52,7 +38,6 @@
       <div v-if="store.activeTasks.length">
         <div class="section-header">Tasks</div>
         <template v-for="group in store.activeByCategory" :key="group.category?.id ?? 0">
-          <!-- Category sub-header: show when there are multiple groups or the only group has a name -->
           <div
             v-if="store.activeByCategory.length > 1 || group.category"
             class="category-group-header"
@@ -103,22 +88,28 @@
         </template>
       </div>
     </div>
+
+    <!-- New category modal -->
+    <CategoryModal
+      v-if="showCategoryModal"
+      @close="showCategoryModal = false"
+      @create="handleCategoryCreate"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useTaskStore } from './stores/taskStore.js'
 import TaskCard from './components/TaskCard.vue'
+import CategoryModal from './components/CategoryModal.vue'
 
 const store = useTaskStore()
 const newTitle = ref('')
 const newDescription = ref('')
 const newCategoryId = ref(null)
 const doneOpen = ref(false)
-const showNewCat = ref(false)
-const newCatName = ref('')
-const catInputRef = ref(null)
+const showCategoryModal = ref(false)
 
 async function handleCreate() {
   const title = newTitle.value.trim()
@@ -129,24 +120,9 @@ async function handleCreate() {
   newCategoryId.value = null
 }
 
-async function openNewCat() {
-  showNewCat.value = true
-  await nextTick()
-  catInputRef.value?.focus()
-}
-
-async function addCategory() {
-  const name = newCatName.value.trim()
-  if (!name) return
+async function handleCategoryCreate(name) {
   const cat = await store.createCategory(name)
   if (cat) newCategoryId.value = cat.id
-  newCatName.value = ''
-  showNewCat.value = false
-}
-
-function cancelNewCat() {
-  newCatName.value = ''
-  showNewCat.value = false
 }
 
 onMounted(async () => {
