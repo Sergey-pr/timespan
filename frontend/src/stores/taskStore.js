@@ -13,6 +13,8 @@ import {
   CloseTimerWindow,
   GetCategories,
   CreateCategory,
+  RenameCategory,
+  DeleteCategory,
 } from '../../bindings/timespan/app.js'
 
 export const useTaskStore = defineStore('tasks', () => {
@@ -65,8 +67,27 @@ export const useTaskStore = defineStore('tasks', () => {
 
   async function createCategory(name) {
     const cat = await CreateCategory(name)
-    if (cat) categories.value.push(cat)
+    if (cat) {
+      categories.value.push(cat)
+      categories.value.sort((a, b) => a.name.localeCompare(b.name))
+    }
     return cat
+  }
+
+  async function renameCategory(id, name) {
+    const cat = await RenameCategory(id, name)
+    if (cat) {
+      const idx = categories.value.findIndex(c => c.id === id)
+      if (idx !== -1) categories.value[idx] = cat
+      categories.value.sort((a, b) => a.name.localeCompare(b.name))
+    }
+    return cat
+  }
+
+  async function deleteCategory(id) {
+    const ok = await DeleteCategory(id)
+    if (ok) categories.value = categories.value.filter(c => c.id !== id)
+    return ok
   }
 
   async function createTask(title, description, categoryId) {
@@ -158,6 +179,8 @@ export const useTaskStore = defineStore('tasks', () => {
     loadTasks,
     loadCategories,
     createCategory,
+    renameCategory,
+    deleteCategory,
     createTask,
     startTask,
     pauseTask,

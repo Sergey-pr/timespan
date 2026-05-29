@@ -136,7 +136,7 @@ html, body {
 
 .add-task-form .form-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
 }
 
 /* Buttons */
@@ -421,22 +421,6 @@ button:active { opacity: 0.8; }
   color: var(--text);
 }
 
-.btn-add-cat {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--muted);
-  font-size: 16px;
-  line-height: 1;
-  padding: 4px 9px;
-  transition: border-color 0.15s, color 0.15s;
-  flex-shrink: 0;
-}
-
-.btn-add-cat:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
 
 /* Modal */
 .modal-backdrop {
@@ -508,6 +492,114 @@ button:active { opacity: 0.8; }
 }
 
 .modal-footer .btn-primary:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Categories management modal */
+.categories-modal {
+  width: 320px;
+}
+
+.cat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 12px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.cat-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 4px;
+  border-radius: 5px;
+}
+
+.cat-row:hover { background: var(--surface2); }
+
+.cat-name {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cat-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.cat-action {
+  font-size: 13px;
+  padding: 3px 6px;
+  color: var(--muted);
+}
+
+.cat-action:hover { color: var(--text); }
+
+.cat-delete:not(.disabled):hover { color: var(--danger); }
+
+.cat-delete.disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.cat-rename-input {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  padding: 4px 8px;
+  outline: none;
+  min-width: 0;
+}
+
+.cat-empty {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  padding: 12px 0;
+}
+
+.cat-new-row {
+  display: flex;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.cat-new-input {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  padding: 6px 10px;
+  outline: none;
+  transition: border-color 0.15s;
+  min-width: 0;
+}
+
+.cat-new-input:focus { border-color: var(--accent); }
+.cat-new-input::placeholder { color: var(--muted); }
+
+.cat-add-btn {
+  flex-shrink: 0;
+  padding: 6px 12px;
+}
+
+.cat-add-btn:disabled {
   opacity: 0.4;
   cursor: default;
 }

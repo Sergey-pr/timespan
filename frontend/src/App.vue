@@ -26,10 +26,9 @@
               {{ cat.name }}
             </option>
           </select>
-          <button type="button" class="btn-add-cat" title="New category" @click="showCategoryModal = true">+</button>
         </div>
-
         <div class="form-actions">
+          <button type="button" class="btn-primary" @click="showCategoryModal = true">Edit categories</button>
           <button type="submit" class="btn-primary">Add task</button>
         </div>
       </form>
@@ -89,11 +88,10 @@
       </div>
     </div>
 
-    <!-- New category modal -->
-    <CategoryModal
+    <!-- Categories management modal -->
+    <CategoriesModal
       v-if="showCategoryModal"
       @close="showCategoryModal = false"
-      @create="handleCategoryCreate"
     />
   </div>
 </template>
@@ -102,7 +100,7 @@
 import { ref, onMounted } from 'vue'
 import { useTaskStore } from './stores/taskStore.js'
 import TaskCard from './components/TaskCard.vue'
-import CategoryModal from './components/CategoryModal.vue'
+import CategoriesModal from './components/CategoriesModal.vue'
 
 const store = useTaskStore()
 const newTitle = ref('')
@@ -120,10 +118,6 @@ async function handleCreate() {
   newCategoryId.value = null
 }
 
-async function handleCategoryCreate(name) {
-  const cat = await store.createCategory(name)
-  if (cat) newCategoryId.value = cat.id
-}
 
 onMounted(async () => {
   await Promise.all([store.loadTasks(), store.loadCategories()])

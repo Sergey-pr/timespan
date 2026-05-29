@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/doug-martin/goqu/v9"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
@@ -83,6 +84,48 @@ func (a *App) CreateCategory(name string) *Category {
 		return nil
 	}
 	return cat
+}
+
+// RenameCategory updates the name of an existing category.
+func (a *App) RenameCategory(id int64, name string) *Category {
+	cat, err := GetCategoryByID(id)
+	if err != nil {
+		a.showError(err)
+		return nil
+	}
+	cat.Name = name
+	if err := cat.Save(); err != nil {
+		a.showError(err)
+		return nil
+	}
+	return cat
+}
+
+// DeleteCategory removes a category. Returns false if any tasks still reference it.
+func (a *App) DeleteCategory(id int64) bool {
+	var count int
+	found, err := goquDB.From(taskTable).
+		Select(goqu.COUNT("*")).
+		Where(goqu.C("category_id").Eq(id)).
+		ScanVal(&count)
+	if err != nil {
+		a.showError(err)
+		return false
+	}
+	if found && count > 0 {
+		a.showError(fmt.Errorf("cannot delete category: %d task(s) still use it", count))
+		return false
+	}
+	cat, err := GetCategoryByID(id)
+	if err != nil {
+		a.showError(err)
+		return false
+	}
+	if err := cat.Delete(); err != nil {
+		a.showError(err)
+		return false
+	}
+	return true
 }
 
 // CreateTask creates a new pending task. categoryID == 0 means no category.
