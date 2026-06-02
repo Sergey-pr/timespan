@@ -37,13 +37,17 @@
       <div v-if="store.activeTasks.length">
         <div class="section-header">Tasks</div>
         <template v-for="group in store.activeByCategory" :key="group.category?.id ?? 0">
-          <div
+          <!-- Collapsible header: only when grouping is visible -->
+          <button
             v-if="store.activeByCategory.length > 1 || group.category"
-            class="category-group-header"
+            class="category-group-toggle"
+            @click="toggleGroup(groupKey(group, 'active'))"
           >
+            <span class="chevron" :class="{ open: isGroupOpen(group, 'active') }">›</span>
             {{ group.category ? group.category.name : 'No category' }}
-          </div>
-          <div class="task-list">
+            <span class="group-count">({{ group.tasks.length }})</span>
+          </button>
+          <div v-if="isGroupOpen(group, 'active')" class="task-list">
             <TaskCard
               v-for="task in group.tasks"
               :key="task.id"
@@ -67,13 +71,16 @@
           Done ({{ store.finishedTasks.length }})
         </button>
         <template v-if="doneOpen" v-for="group in store.finishedByCategory" :key="group.category?.id ?? 0">
-          <div
+          <button
             v-if="store.finishedByCategory.length > 1 || group.category"
-            class="category-group-header"
+            class="category-group-toggle"
+            @click="toggleGroup(groupKey(group, 'finished'))"
           >
+            <span class="chevron" :class="{ open: isGroupOpen(group, 'finished') }">›</span>
             {{ group.category ? group.category.name : 'No category' }}
-          </div>
-          <div class="task-list">
+            <span class="group-count">({{ group.tasks.length }})</span>
+          </button>
+          <div v-if="isGroupOpen(group, 'finished')" class="task-list">
             <TaskCard
               v-for="task in group.tasks"
               :key="task.id"
@@ -108,6 +115,25 @@ const newDescription = ref('')
 const newCategoryId = ref(null)
 const doneOpen = ref(false)
 const showCategoryModal = ref(false)
+const collapsedGroups = ref(new Set())
+
+function toggleGroup(key) {
+  if (collapsedGroups.value.has(key)) {
+    collapsedGroups.value.delete(key)
+  } else {
+    collapsedGroups.value.add(key)
+  }
+  // trigger reactivity
+  collapsedGroups.value = new Set(collapsedGroups.value)
+}
+
+function groupKey(group, prefix) {
+  return `${prefix}:${group.category?.id ?? 0}`
+}
+
+function isGroupOpen(group, prefix) {
+  return !collapsedGroups.value.has(groupKey(group, prefix))
+}
 
 async function handleCreate() {
   const title = newTitle.value.trim()
