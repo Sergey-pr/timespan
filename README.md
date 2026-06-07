@@ -4,9 +4,9 @@ Minimal desktop task tracker with per-task timers. Start a task, track time, pau
 Click the clock icon on any running task to pop open a floating always-on-top timer window.
 
 <div align="center">
-  <img alt="Screenshot" width="460" src="/.github/assets/screenshot1.png" style="vertical-align:top"/>
+  <img alt="Screenshot" width="300" src="/.github/assets/screenshot1.png" style="vertical-align:top"/>
   &nbsp;&nbsp;
-  <img alt="Screenshot" width="460" src="/.github/assets/screenshot2.png" style="vertical-align:top"/>
+  <img alt="Screenshot" width="200" src="/.github/assets/screenshot2.png" style="vertical-align:top"/>
 </div>
 
 ## Features
