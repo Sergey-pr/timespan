@@ -37,7 +37,7 @@
       <div v-if="store.activeTasks.length">
         <div class="section-header">Tasks</div>
         <template v-for="group in store.activeByCategory" :key="group.category?.id ?? 0">
-          <!-- Collapsible header: only when grouping is visible -->
+          <!-- Collapsible header only when grouping is visible -->
           <button
             v-if="store.activeByCategory.length > 1 || group.category"
             class="category-group-toggle"
