@@ -52,7 +52,7 @@
           <!-- New category input -->
           <div class="cat-new-row">
             <input
-              ref="newInputRef"
+              ref="newCategoryInputRef"
               v-model="newName"
               class="cat-new-input"
               placeholder="New category name…"
@@ -93,14 +93,14 @@ function isUsed(id) { return usedIds.value.has(id) }
 
 // New category
 const newName = ref('')
-const newInputRef = ref(null)
+const newCategoryInputRef = ref(null)
 
 async function handleCreate() {
   const name = newName.value.trim()
   if (!name) return
   await store.createCategory(name)
   newName.value = ''
-  newInputRef.value?.focus()
+  newCategoryInputRef.value?.focus()
 }
 
 // Rename
