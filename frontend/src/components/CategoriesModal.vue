@@ -55,7 +55,7 @@
               ref="newCategoryInputRef"
               v-model="newName"
               class="cat-new-input"
-              placeholder="New category name…"
+              placeholder="New category name"
               maxlength="64"
               @keydown.enter.prevent="handleCreate"
             />

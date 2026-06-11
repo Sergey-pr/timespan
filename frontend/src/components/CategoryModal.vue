@@ -12,7 +12,7 @@
             ref="inputRef"
             v-model="name"
             class="modal-input"
-            placeholder="Category name…"
+            placeholder="Category name"
             maxlength="64"
             @keydown.enter.prevent="submit"
             @keydown.escape="$emit('close')"

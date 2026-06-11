@@ -9,7 +9,7 @@
       <form class="add-task-form" @submit.prevent="handleCreate">
         <input
           v-model="newTitle"
-          placeholder="New task title…"
+          placeholder="New task title"
           autocomplete="off"
           required
         />
