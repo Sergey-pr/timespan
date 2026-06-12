@@ -11,7 +11,7 @@ var categoryTable = goqu.T("categories")
 
 type Category struct {
 	ID        int64     `db:"id"         json:"id"         goqu:"skipinsert,skipupdate"`
-	Name      string    `db:"name"        json:"name"`
+	Name      string    `db:"name"       json:"name"`
 	CreatedAt time.Time `db:"created_at" json:"createdAt"  goqu:"skipupdate"`
 }
 
