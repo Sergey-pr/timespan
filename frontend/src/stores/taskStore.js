@@ -15,6 +15,7 @@ import {
   CreateCategory,
   RenameCategory,
   DeleteCategory,
+  ExportReport,
 } from '../../bindings/timespan/app.js'
 
 export const useTaskStore = defineStore('tasks', () => {
@@ -129,6 +130,10 @@ export const useTaskStore = defineStore('tasks', () => {
     return ok
   }
 
+  async function exportReport() {
+    return await ExportReport()
+  }
+
   function openTimer(id) {
     OpenTimerWindow(id)
   }
@@ -187,6 +192,7 @@ export const useTaskStore = defineStore('tasks', () => {
     finishTask,
     editTask,
     deleteTask,
+    exportReport,
     openTimer,
     closeTimer,
     setupTicker,

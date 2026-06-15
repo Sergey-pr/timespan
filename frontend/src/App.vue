@@ -2,6 +2,11 @@
   <div id="app-root">
     <div class="titlebar">
       <h1>TimeSpan</h1>
+      <button
+        class="btn-ghost titlebar-export"
+        :disabled="exporting"
+        @click="handleExport"
+      >{{ exporting ? 'Exporting…' : 'Export xlsx' }}</button>
     </div>
 
     <div class="main-content">
@@ -116,6 +121,16 @@ const newCategoryId = ref(null)
 const doneOpen = ref(false)
 const showCategoryModal = ref(false)
 const collapsedGroups = ref(new Set())
+const exporting = ref(false)
+
+async function handleExport() {
+  exporting.value = true
+  try {
+    await store.exportReport()
+  } finally {
+    exporting.value = false
+  }
+}
 
 function toggleGroup(key) {
   if (collapsedGroups.value.has(key)) {

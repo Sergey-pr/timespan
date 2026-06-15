@@ -66,6 +66,28 @@ func (a *App) GetTasks() []Task {
 	return tasks
 }
 
+// ExportReport prompts for a save location and writes an xlsx report of all tasks.
+// Returns the chosen path on success, or an empty string if the user cancelled.
+func (a *App) ExportReport() string {
+	path, err := application.Get().Dialog.SaveFile().
+		SetFilename(fmt.Sprintf("timespan-report-%s.xlsx", time.Now().Format("2006-01-02"))).
+		AddFilter("Excel Workbook", "*.xlsx").
+		CanCreateDirectories(true).
+		PromptForSingleSelection()
+	if err != nil {
+		a.showError(err)
+		return ""
+	}
+	if path == "" {
+		return ""
+	}
+	if err := buildReport(path); err != nil {
+		a.showError(err)
+		return ""
+	}
+	return path
+}
+
 // GetCategories returns all categories sorted alphabetically.
 func (a *App) GetCategories() []Category {
 	cats, err := GetCategories()

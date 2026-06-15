@@ -70,6 +70,17 @@ html, body {
   -webkit-app-region: drag;
 }
 
+.titlebar-export {
+  margin-left: auto;
+  -webkit-app-region: no-drag;
+  font-size: 11px;
+}
+
+.titlebar-export:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* Main layout */
 .main-content {
   flex: 1;
