@@ -164,7 +164,7 @@ func (a *App) CreateTask(title string, description string, categoryID int64) *Ta
 		Title:       title,
 		Description: desc,
 		CategoryID:  catID,
-		Status:      StatusPending,
+		Status:      StatusReadyToStart,
 	}
 	if err := task.Save(); err != nil {
 		a.showError(err)
@@ -200,7 +200,7 @@ func (a *App) StartTask(id int64) *Task {
 		a.showError(err)
 		return nil
 	}
-	task.Status = StatusRunning
+	task.Status = StatusActive
 	task.StartedAt = &now
 	task.FinishedAt = nil
 	if err = task.Save(); err != nil {
@@ -301,7 +301,7 @@ func (a *App) GetCurrentElapsed(id int64) int64 {
 		a.showError(err)
 		return 0
 	}
-	if task.Status == StatusRunning && task.StartedAt != nil {
+	if task.Status == StatusActive && task.StartedAt != nil {
 		return task.ElapsedMs + time.Since(*task.StartedAt).Milliseconds()
 	}
 	return task.ElapsedMs

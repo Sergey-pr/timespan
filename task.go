@@ -10,10 +10,10 @@ import (
 type TaskStatus string
 
 const (
-	StatusPending  TaskStatus = "pending"
-	StatusRunning  TaskStatus = "running"
-	StatusPaused   TaskStatus = "paused"
-	StatusFinished TaskStatus = "finished"
+	StatusReadyToStart TaskStatus = "ready_to_start"
+	StatusActive       TaskStatus = "active"
+	StatusPaused       TaskStatus = "paused"
+	StatusFinished     TaskStatus = "finished"
 )
 
 var taskTable = goqu.T("tasks")
@@ -61,7 +61,7 @@ func GetTaskByID(id int64) (*Task, error) {
 func GetRunningTask() (*Task, error) {
 	var task Task
 	found, err := goquDB.From(taskTable).
-		Where(goqu.C("status").Eq(StatusRunning)).
+		Where(goqu.C("status").Eq(StatusActive)).
 		ScanStruct(&task)
 	if err != nil {
 		return nil, err

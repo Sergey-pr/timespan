@@ -7,12 +7,11 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-// statusLabels maps task statuses to human-readable Russian labels for the report.
 var statusLabels = map[TaskStatus]string{
-	StatusPending:  "Ожидает",
-	StatusRunning:  "Выполняется",
-	StatusPaused:   "На паузе",
-	StatusFinished: "Завершена",
+	StatusReadyToStart: "Ready to start",
+	StatusActive:       "Active",
+	StatusPaused:       "Paused",
+	StatusFinished:     "Finished",
 }
 
 // formatDuration renders elapsed milliseconds as HH:MM:SS.
@@ -37,7 +36,7 @@ func formatTime(t *time.Time) string {
 
 // liveElapsed returns the task's elapsed time including the active running segment.
 func liveElapsed(t Task) int64 {
-	if t.Status == StatusRunning && t.StartedAt != nil {
+	if t.Status == StatusActive && t.StartedAt != nil {
 		return t.ElapsedMs + time.Since(*t.StartedAt).Milliseconds()
 	}
 	return t.ElapsedMs
