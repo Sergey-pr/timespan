@@ -61,7 +61,7 @@ func buildReport(path string) error {
 	f := excelize.NewFile()
 	defer f.Close()
 
-	const sheet = "Отчёт"
+	const sheet = "Report"
 	idx, err := f.NewSheet(sheet)
 	if err != nil {
 		return err
