@@ -70,8 +70,8 @@ func buildReport(path string) error {
 	f.DeleteSheet("Sheet1")
 
 	headers := []string{
-		"Название", "Категория", "Статус",
-		"Дата создания", "Дата завершения", "Затраченное время",
+		"Name", "Category", "Status",
+		"Created", "Completed", "Time spent",
 	}
 	for i, h := range headers {
 		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
