@@ -59,7 +59,9 @@ func buildReport(path string) error {
 	}
 
 	f := excelize.NewFile()
-	defer f.Close()
+	defer func() {
+		_ = f.Close()
+	}()
 
 	const sheet = "Report"
 	idx, err := f.NewSheet(sheet)
@@ -67,7 +69,10 @@ func buildReport(path string) error {
 		return err
 	}
 	f.SetActiveSheet(idx)
-	f.DeleteSheet("Sheet1")
+	err = f.DeleteSheet("Sheet1")
+	if err != nil {
+		return err
+	}
 
 	headers := []string{
 		"Name", "Category", "Status",
@@ -75,7 +80,10 @@ func buildReport(path string) error {
 	}
 	for i, h := range headers {
 		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
-		f.SetCellValue(sheet, cell, h)
+		err = f.SetCellValue(sheet, cell, h)
+		if err != nil {
+			return err
+		}
 	}
 
 	headerStyle, err := f.NewStyle(&excelize.Style{
@@ -83,8 +91,12 @@ func buildReport(path string) error {
 		Fill:      excelize.Fill{Type: "pattern", Color: []string{"E6E6F0"}, Pattern: 1},
 		Alignment: &excelize.Alignment{Vertical: "center"},
 	})
-	if err == nil {
-		f.SetCellStyle(sheet, "A1", "F1", headerStyle)
+	if err != nil {
+		return err
+	}
+	err = f.SetCellStyle(sheet, "A1", "F1", headerStyle)
+	if err != nil {
+		return err
 	}
 
 	for r, t := range tasks {
@@ -103,14 +115,18 @@ func buildReport(path string) error {
 		}
 		for c, v := range values {
 			cell, _ := excelize.CoordinatesToCellName(c+1, row)
-			f.SetCellValue(sheet, cell, v)
+			if err = f.SetCellValue(sheet, cell, v); err != nil {
+				return err
+			}
 		}
 	}
 
 	widths := []float64{32, 18, 14, 18, 18, 18}
 	for i, w := range widths {
 		col, _ := excelize.ColumnNumberToName(i + 1)
-		f.SetColWidth(sheet, col, col, w)
+		if err = f.SetColWidth(sheet, col, col, w); err != nil {
+			return err
+		}
 	}
 
 	return f.SaveAs(path)
