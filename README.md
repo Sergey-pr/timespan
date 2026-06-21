@@ -16,9 +16,8 @@ Click the clock icon on any running task to pop open a floating always-on-top ti
 - Edit task title and description at any time
 - Create, edit, delete custom categories
 - Set custom categories to tasks for grouping
-- Continue a finished task (resumes elapsed time)
 - Floating always-on-top timer window per task
-- Persistent SQLite storage survives restarts
+- Export tasks info in xlsx document 
 
 ## Stack
 
