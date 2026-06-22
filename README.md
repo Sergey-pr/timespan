@@ -17,7 +17,7 @@ Click the clock icon on any running task to pop open a floating always-on-top ti
 - Create, edit, delete custom categories
 - Set custom categories to tasks for grouping
 - Floating always-on-top timer window per task
-- Export tasks info in xlsx document 
+- Export tasks data in xlsx document 
 
 ## Stack
 
