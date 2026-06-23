@@ -11,7 +11,7 @@ Click the clock icon on any running task to pop open a floating always-on-top ti
 
 ## Features
 
-- Create tasks with an optional description
+- Create tasks with a description
 - Start, pause, resume, and finish tasks
 - Edit task title and description at any time
 - Create, edit, delete custom categories
