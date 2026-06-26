@@ -1,5 +1,5 @@
 <template>
-  <div class="task-card" :class="{ running: task.status === 'running' }">
+  <div class="task-card" :class="{ running: task.status === TaskStatus.ACTIVE }">
     <!-- Edit mode -->
     <template v-if="editing">
       <div class="task-edit-form">
@@ -31,19 +31,19 @@
           <div v-if="task.description" class="task-description">{{ task.description }}</div>
         </div>
         <div class="task-actions">
-          <template v-if="task.status === 'pending'">
+          <template v-if="task.status === TaskStatus.READY_TO_START">
             <button class="btn-primary" @click="$emit('start', task.id)">Start</button>
           </template>
-          <template v-else-if="task.status === 'running'">
+          <template v-else-if="task.status === TaskStatus.ACTIVE">
             <button class="btn-ghost" @click="$emit('pause', task.id)">Pause</button>
             <button class="btn-ghost" @click="$emit('finish', task.id)">Finish</button>
             <button class="btn-ghost" @click="$emit('open-timer', task.id)">Timer</button>
           </template>
-          <template v-else-if="task.status === 'paused'">
+          <template v-else-if="task.status === TaskStatus.PAUSED">
             <button class="btn-primary" @click="$emit('start', task.id)">Resume</button>
             <button class="btn-ghost" @click="$emit('finish', task.id)">Finish</button>
           </template>
-          <template v-else-if="task.status === 'finished'">
+          <template v-else-if="task.status === TaskStatus.FINISHED">
             <button class="btn-ghost" @click="$emit('start', task.id)">Continue</button>
           </template>
           <button class="btn-icon" title="Edit" @click="startEdit">✎</button>
@@ -52,7 +52,7 @@
       </div>
       <div class="task-meta">
         <span class="elapsed">{{ formatElapsed(task.elapsedMs) }}</span>
-        <span class="status-badge" :class="task.status">{{ task.status }}</span>
+        <span class="status-badge" :class="task.status">{{ statusLabel }}</span>
         <span v-if="categoryName" class="category-badge">{{ categoryName }}</span>
       </div>
     </template>
@@ -61,6 +61,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { TaskStatus, TaskStatusLabel } from '../constants/taskStatus.js'
 
 const props = defineProps({
   task:       { type: Object, required: true },
@@ -73,6 +74,8 @@ const editing = ref(false)
 const editTitle = ref('')
 const editDesc = ref('')
 const editCategoryId = ref(null)
+
+const statusLabel = computed(() => TaskStatusLabel[props.task.status] ?? props.task.status)
 
 const categoryName = computed(() => {
   if (!props.task.categoryId) return null

@@ -17,21 +17,22 @@ import {
   DeleteCategory,
   ExportReport,
 } from '../../bindings/timespan/app.js'
+import { TaskStatus } from '../constants/taskStatus.js'
 
 export const useTaskStore = defineStore('tasks', () => {
   const tasks = ref([])
   const categories = ref([])
 
   const activeTasks = computed(() =>
-    tasks.value.filter(t => t.status !== 'finished')
+    tasks.value.filter(t => t.status !== TaskStatus.FINISHED)
   )
 
   const finishedTasks = computed(() =>
-    tasks.value.filter(t => t.status === 'finished')
+    tasks.value.filter(t => t.status === TaskStatus.FINISHED)
   )
 
   const runningTask = computed(() =>
-    tasks.value.find(t => t.status === 'running') ?? null
+    tasks.value.find(t => t.status === TaskStatus.ACTIVE) ?? null
   )
 
   // Groups a task list by category: named categories sorted A–Z, uncategorised last.
@@ -146,7 +147,7 @@ export const useTaskStore = defineStore('tasks', () => {
   function tick() {
     const now = Date.now()
     tasks.value.forEach(t => {
-      if (t.status === 'running' && t._segStart != null) {
+      if (t.status === TaskStatus.ACTIVE && t._segStart != null) {
         t.elapsedMs = t._baseElapsed + (now - t._segStart)
       }
     })

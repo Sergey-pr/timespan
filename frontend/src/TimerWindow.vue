@@ -6,8 +6,8 @@
     </div>
     <div class="timer-elapsed">{{ formattedElapsed }}</div>
     <div class="timer-actions">
-      <button v-if="task?.status === 'running'" @click="pause">Pause</button>
-      <button v-else-if="task?.status === 'paused'" @click="resume">Resume</button>
+      <button v-if="task?.status === TaskStatus.ACTIVE" @click="pause">Pause</button>
+      <button v-else-if="task?.status === TaskStatus.PAUSED" @click="resume">Resume</button>
     </div>
   </div>
 </template>
@@ -21,6 +21,7 @@ import {
   StartTask,
   CloseTimerWindow,
 } from '../bindings/timespan/app.js'
+import { TaskStatus } from './constants/taskStatus.js'
 
 const task = ref(null)
 const baseElapsed = ref(0)
@@ -30,7 +31,7 @@ const now = ref(Date.now())
 const taskId = parseInt(new URLSearchParams(window.location.search).get('taskId') ?? '0', 10)
 
 const liveElapsed = computed(() => {
-  if (task.value?.status === 'running' && segmentStartedAt.value !== null) {
+  if (task.value?.status === TaskStatus.ACTIVE && segmentStartedAt.value !== null) {
     return baseElapsed.value + (now.value - segmentStartedAt.value)
   }
   return baseElapsed.value

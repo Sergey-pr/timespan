@@ -303,8 +303,8 @@ button:active { opacity: 0.8; }
   border-radius: 3px;
 }
 
-.status-badge.pending  { background: rgba(136,136,153,0.15); color: var(--muted); }
-.status-badge.running  { background: rgba(108,99,255,0.2);   color: var(--accent); }
+.status-badge.ready_to_start { background: rgba(136,136,153,0.15); color: var(--muted); }
+.status-badge.active         { background: rgba(108,99,255,0.2);   color: var(--accent); }
 .status-badge.paused   { background: rgba(245,166,35,0.15);  color: var(--warning); }
 .status-badge.finished { background: rgba(62,207,142,0.15);  color: var(--success); }
 
