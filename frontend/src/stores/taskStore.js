@@ -22,13 +22,25 @@ import { TaskStatus } from '../constants/taskStatus.js'
 export const useTaskStore = defineStore('tasks', () => {
   const tasks = ref([])
   const categories = ref([])
+  const searchTerm = ref('')
+
+  // Case-insensitive substring match on title or description.
+  // Done in memory (not via SQL LIKE/ILIKE) because SQLite's LIKE is ASCII-only
+  // and the store already holds every task for the live timers.
+  function matchesSearch(t) {
+    const term = searchTerm.value.trim().toLowerCase()
+    if (!term) return true
+    const title = (t.title ?? '').toLowerCase()
+    const description = (t.description ?? '').toLowerCase()
+    return title.includes(term) || description.includes(term)
+  }
 
   const activeTasks = computed(() =>
-    tasks.value.filter(t => t.status !== TaskStatus.FINISHED)
+    tasks.value.filter(t => t.status !== TaskStatus.FINISHED && matchesSearch(t))
   )
 
   const finishedTasks = computed(() =>
-    tasks.value.filter(t => t.status === TaskStatus.FINISHED)
+    tasks.value.filter(t => t.status === TaskStatus.FINISHED && matchesSearch(t))
   )
 
   const runningTask = computed(() =>
@@ -177,6 +189,7 @@ export const useTaskStore = defineStore('tasks', () => {
   return {
     tasks,
     categories,
+    searchTerm,
     activeTasks,
     finishedTasks,
     activeByCategory,

@@ -38,6 +38,20 @@
         </div>
       </form>
 
+      <!-- Search -->
+      <input
+        v-model="store.searchTerm"
+        class="task-search"
+        type="search"
+        placeholder="Search tasks…"
+        autocomplete="off"
+      />
+
+      <p
+        v-if="store.searchTerm.trim() && !store.activeTasks.length && !store.finishedTasks.length"
+        class="search-empty"
+      >No tasks match “{{ store.searchTerm.trim() }}”.</p>
+
       <!-- Active tasks grouped by category -->
       <div v-if="store.activeTasks.length">
         <div class="section-header">Tasks</div>
