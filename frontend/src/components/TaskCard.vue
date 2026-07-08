@@ -47,7 +47,12 @@
             <button class="btn-ghost" @click="$emit('start', task.id)">Continue</button>
           </template>
           <button class="btn-icon" title="Edit" @click="startEdit">✎</button>
-          <button class="btn-danger" @click="$emit('delete', task.id)">✕</button>
+          <template v-if="confirmingDelete">
+            <span class="confirm-delete-label">Delete?</span>
+            <button class="btn-danger-solid" @click="$emit('delete', task.id)">Yes</button>
+            <button class="btn-ghost" @click="confirmingDelete = false">No</button>
+          </template>
+          <button v-else class="btn-danger" @click="confirmingDelete = true">✕</button>
         </div>
       </div>
       <div class="task-meta">
@@ -71,6 +76,7 @@ const props = defineProps({
 const emit = defineEmits(['start', 'pause', 'finish', 'edit', 'delete', 'open-timer'])
 
 const editing = ref(false)
+const confirmingDelete = ref(false)
 const editTitle = ref('')
 const editDesc = ref('')
 const editCategoryId = ref(null)

@@ -400,6 +400,12 @@ button:active { opacity: 0.8; }
 }
 .btn-danger-solid:hover { opacity: 0.85; }
 
+.confirm-delete-label {
+  font-size: 12px;
+  color: var(--danger);
+  white-space: nowrap;
+}
+
 /* Task actions */
 .task-actions {
   display: flex;
