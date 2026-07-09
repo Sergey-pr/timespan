@@ -279,6 +279,13 @@ button:active { opacity: 0.8; }
   min-width: 0;
 }
 
+.task-title-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
 .task-title {
   font-size: 13px;
   font-weight: 500;
@@ -288,12 +295,30 @@ button:active { opacity: 0.8; }
   text-overflow: ellipsis;
 }
 
+.btn-copy {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 0 2px;
+  cursor: pointer;
+  line-height: 1;
+}
+.btn-copy:hover { color: var(--text); }
+.btn-copy.copied { opacity: 1; color: var(--accent); }
+
+.task-description-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  margin-top: 2px;
+}
+
 .task-description {
   font-size: 11px;
   color: var(--muted);
-  margin-top: 2px;
   line-height: 1.4;
-  /* allow wrapping for descriptions */
   white-space: pre-wrap;
   word-break: break-word;
 }

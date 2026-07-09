@@ -27,8 +27,18 @@
     <template v-else>
       <div class="task-card-header">
         <div class="task-info">
-          <div class="task-title">{{ task.title }}</div>
-          <div v-if="task.description" class="task-description">{{ task.description }}</div>
+          <div class="task-title-row">
+            <span class="task-title">{{ task.title }}</span>
+            <button class="btn-copy" :class="{ copied }" title="Copy title" @click="copyTitle">
+              {{ copied ? '✓' : '⎘' }}
+            </button>
+          </div>
+          <div v-if="task.description" class="task-description-row">
+            <span class="task-description">{{ task.description }}</span>
+            <button class="btn-copy" :class="{ copied: copiedDesc }" title="Copy description" @click="copyDescription">
+              {{ copiedDesc ? '✓' : '⎘' }}
+            </button>
+          </div>
         </div>
         <div class="task-actions">
           <template v-if="task.status === TaskStatus.READY_TO_START">
@@ -77,6 +87,8 @@ const emit = defineEmits(['start', 'pause', 'finish', 'edit', 'delete', 'open-ti
 
 const editing = ref(false)
 const confirmingDelete = ref(false)
+const copied = ref(false)
+const copiedDesc = ref(false)
 const editTitle = ref('')
 const editDesc = ref('')
 const editCategoryId = ref(null)
@@ -109,6 +121,18 @@ function saveEdit() {
 
 function cancelEdit() {
   editing.value = false
+}
+
+function copyTitle() {
+  navigator.clipboard.writeText(props.task.title)
+  copied.value = true
+  setTimeout(() => { copied.value = false }, 1200)
+}
+
+function copyDescription() {
+  navigator.clipboard.writeText(props.task.description)
+  copiedDesc.value = true
+  setTimeout(() => { copiedDesc.value = false }, 1200)
 }
 
 function formatElapsed(ms) {
