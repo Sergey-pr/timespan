@@ -77,6 +77,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { TaskStatus, TaskStatusLabel } from '../constants/taskStatus.js'
+import { formatElapsed } from '../utils/time.js'
 
 const props = defineProps({
   task:       { type: Object, required: true },
@@ -133,14 +134,5 @@ function copyDescription() {
   navigator.clipboard.writeText(props.task.description)
   copiedDesc.value = true
   setTimeout(() => { copiedDesc.value = false }, 1200)
-}
-
-function formatElapsed(ms) {
-  if (!ms || ms < 0) ms = 0
-  const totalSec = Math.floor(ms / 1000)
-  const h = Math.floor(totalSec / 3600)
-  const m = Math.floor((totalSec % 3600) / 60)
-  const s = totalSec % 60
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 </script>

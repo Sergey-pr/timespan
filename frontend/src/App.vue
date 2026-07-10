@@ -79,6 +79,9 @@
               @delete="store.deleteTask($event)"
               @open-timer="store.openTimer($event)"
             />
+            <div class="group-total">
+              Total: {{ formatElapsed(groupElapsed(group)) }} · {{ group.tasks.length }} {{ taskWord(group.tasks.length) }}
+            </div>
           </div>
         </template>
       </div>
@@ -109,8 +112,16 @@
               @edit="e => store.editTask(e.id, e.title, e.description, e.categoryId)"
               @delete="store.deleteTask($event)"
             />
+            <div class="group-total">
+              Total: {{ formatElapsed(groupElapsed(group)) }} · {{ group.tasks.length }} {{ taskWord(group.tasks.length) }}
+            </div>
           </div>
         </template>
+      </div>
+
+      <!-- Grand total across all categories -->
+      <div v-if="allTasks.length" class="grand-total">
+        All categories: {{ formatElapsed(totalElapsed) }} · {{ allTasks.length }} {{ taskWord(allTasks.length) }}
       </div>
     </div>
 
@@ -123,10 +134,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useTaskStore } from './stores/taskStore.js'
 import TaskCard from './components/TaskCard.vue'
 import CategoriesModal from './components/CategoriesModal.vue'
+import { formatElapsed } from './utils/time.js'
 
 const store = useTaskStore()
 const newTitle = ref('')
@@ -163,6 +175,20 @@ function groupKey(group, prefix) {
 function isGroupOpen(group, prefix) {
   return !collapsedGroups.value.has(groupKey(group, prefix))
 }
+
+function groupElapsed(group) {
+  return group.tasks.reduce((sum, t) => sum + (t.elapsedMs ?? 0), 0)
+}
+
+function taskWord(n) {
+  return n === 1 ? 'task' : 'tasks'
+}
+
+const allTasks = computed(() => [...store.activeTasks, ...store.finishedTasks])
+
+const totalElapsed = computed(() =>
+  allTasks.value.reduce((sum, t) => sum + (t.elapsedMs ?? 0), 0)
+)
 
 async function handleCreate() {
   const title = newTitle.value.trim()
