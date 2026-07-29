@@ -43,11 +43,3 @@ func initDB() error {
 	goquDB = goqu.New("sqlite3", sqlDB)
 	return nil
 }
-
-func ResetRunningTasks() error {
-	_, err := goquDB.Update(taskTable).
-		Set(goqu.Record{"status": "paused", "started_at": nil}).
-		Where(goqu.C("status").Eq("running")).
-		Executor().Exec()
-	return err
-}

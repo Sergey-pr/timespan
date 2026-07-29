@@ -72,6 +72,17 @@ func GetRunningTask() (*Task, error) {
 	return &task, nil
 }
 
+// ResetRunningTasks pauses tasks left active by a crash or force-quit.
+// The unfinished segment is discarded: its real duration is unknowable, and
+// keeping started_at would count all offline wall-clock time as work time.
+func ResetRunningTasks() error {
+	_, err := goquDB.Update(taskTable).
+		Set(goqu.Record{"status": StatusPaused, "started_at": nil}).
+		Where(goqu.C("status").Eq(StatusActive)).
+		Executor().Exec()
+	return err
+}
+
 // Save inserts or updates the task. ID == 0 means a new record.
 func (t *Task) Save() error {
 	if t.ID == 0 {

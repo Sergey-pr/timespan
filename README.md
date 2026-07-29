@@ -80,7 +80,7 @@ Tasks are stored in SQLite at:
 | Linux    | `~/.config/TimeSpan/timespan.db`                     |
 | Windows  | `%APPDATA%\TimeSpan\timespan.db`                     |
 
-Any task in `running` state when the app closes is reset to `paused` on next startup.
+Any task in `active` state when the app closes is reset to `paused` on next startup; the unfinished segment is discarded rather than counted as work time.
 
 ## License
 
