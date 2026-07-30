@@ -294,19 +294,6 @@ func (a *App) DeleteTask(id int64) bool {
 	return true
 }
 
-// GetCurrentElapsed returns live elapsed ms including the active running segment.
-func (a *App) GetCurrentElapsed(id int64) int64 {
-	task, err := GetTaskByID(id)
-	if err != nil {
-		a.showError(err)
-		return 0
-	}
-	if task.Status == StatusActive && task.StartedAt != nil {
-		return task.ElapsedMs + time.Since(*task.StartedAt).Milliseconds()
-	}
-	return task.ElapsedMs
-}
-
 // OpenTimerWindow shows (or creates) the floating timer window for the given task.
 func (a *App) OpenTimerWindow(id int64) {
 	if w, ok := a.timerWindows[id]; ok {

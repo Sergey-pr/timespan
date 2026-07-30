@@ -10,7 +10,6 @@ import {
   DeleteTask,
   EditTask,
   OpenTimerWindow,
-  CloseTimerWindow,
   GetCategories,
   CreateCategory,
   RenameCategory,
@@ -151,10 +150,6 @@ export const useTaskStore = defineStore('tasks', () => {
     OpenTimerWindow(id)
   }
 
-  function closeTimer() {
-    CloseTimerWindow()
-  }
-
   // Advance elapsedMs in memory for running tasks on every tick.
   function tick() {
     const now = Date.now()
@@ -208,7 +203,6 @@ export const useTaskStore = defineStore('tasks', () => {
     deleteTask,
     exportReport,
     openTimer,
-    closeTimer,
     setupTicker,
   }
 })
