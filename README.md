@@ -24,17 +24,17 @@ Click the clock icon on any running task to pop open a floating always-on-top ti
 | Layer         | Tech                                                  |
 |---------------|-------------------------------------------------------|
 | App framework | [Wails v3](https://v3.wails.io) (Go + native WebView) |
-| Language      | Go 1.23+                                              |
+| Language      | Go 1.25+                                              |
 | UI            | Vue 3 (Composition API) + Pinia + Vite                |
 | Database      | SQLite via `github.com/doug-martin/goqu`              |
 
 ## Prerequisites
 
-- **Go** 1.23+
+- **Go** 1.25+ (the version in `go.mod` is the source of truth)
 - **Node.js** 18+ and npm
-- **Wails v3 CLI** install once:
+- **Wails v3 CLI** install once, matching the `wails/v3` version in `go.mod`:
   ```sh
-  go install github.com/wailsapp/wails/v3/cmd/wails3@latest
+  go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha.74
   ```
 
 > `wails3` must be on your PATH. If installed via `go install`, add `~/go/bin` to your shell's PATH:
