@@ -26,7 +26,7 @@ Click the clock icon on any active task to pop open a floating always-on-top tim
 | App framework | [Wails v3](https://v3.wails.io) (Go + native WebView) |
 | Language      | Go 1.25+                                              |
 | UI            | Vue 3 (Composition API) + Pinia + Vite                |
-| Database      | SQLite via `github.com/doug-martin/goqu`              |
+| Database      | SQLite (`modernc.org/sqlite`) + `goqu` query builder  |
 
 ## Prerequisites
 
@@ -59,6 +59,11 @@ Go code recompiles on save; Vue files hot-reload via Vite HMR. The Vite dev serv
 ```sh
 wails3 build
 ```
+
+The binary lands in `bin/`. Use `wails3 build` rather than `go build`: the Go code embeds
+`frontend/dist`, which isn't in the repo, so on a fresh clone `go build` fails with
+`pattern all:frontend/dist: no matching files found`. `wails3 build` installs the npm
+dependencies, generates the bindings and builds the frontend before compiling.
 
 ## Regenerate JS bindings
 
