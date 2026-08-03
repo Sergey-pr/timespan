@@ -13,20 +13,25 @@ import (
 // goquDB is the shared database connection used by all model methods.
 var goquDB *goqu.Database
 
-func initDB() error {
+// defaultDSN returns the database path in the user's config dir, creating the dir.
+func defaultDSN() (string, error) {
 	configDir, err := os.UserConfigDir()
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	dir := filepath.Join(configDir, "TimeSpan")
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		return err
+		return "", err
 	}
 
-	dbPath := filepath.Join(dir, "timespan.db")
+	return filepath.Join(dir, "timespan.db"), nil
+}
 
-	sqlDB, err := sql.Open("sqlite", dbPath)
+// initDB opens the database at dsn, migrates it and stores it in goquDB.
+// Tests pass ":memory:" here.
+func initDB(dsn string) error {
+	sqlDB, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return err
 	}

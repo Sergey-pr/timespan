@@ -33,7 +33,11 @@ func (a *App) showError(err error) {
 
 // ServiceStartup is called by the Wails v3 service system when the app starts.
 func (a *App) ServiceStartup(ctx context.Context, _ application.ServiceOptions) error {
-	if err := initDB(); err != nil {
+	dsn, err := defaultDSN()
+	if err != nil {
+		return err
+	}
+	if err := initDB(dsn); err != nil {
 		return err
 	}
 	if err := ResetRunningTasks(); err != nil {
