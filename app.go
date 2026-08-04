@@ -31,6 +31,14 @@ func (a *App) showError(err error) {
 	a.errorWindow.Show()
 }
 
+// emitTaskUpdated pushes a task change to the frontend.
+// No-op when no application is running, which is the case in tests.
+func emitTaskUpdated(task Task) {
+	if app := application.Get(); app != nil {
+		app.Event.Emit("task:updated", task)
+	}
+}
+
 // ServiceStartup is called by the Wails v3 service system when the app starts.
 func (a *App) ServiceStartup(ctx context.Context, _ application.ServiceOptions) error {
 	dsn, err := defaultDSN()
@@ -196,7 +204,7 @@ func (a *App) StartTask(id int64) *Task {
 			a.showError(err)
 			return nil
 		}
-		application.Get().Event.Emit("task:updated", *running)
+		emitTaskUpdated(*running)
 	}
 
 	task, err := GetTaskByID(id)
@@ -211,7 +219,7 @@ func (a *App) StartTask(id int64) *Task {
 		a.showError(err)
 		return nil
 	}
-	application.Get().Event.Emit("task:updated", *task)
+	emitTaskUpdated(*task)
 	return task
 }
 
@@ -232,7 +240,7 @@ func (a *App) PauseTask(id int64) *Task {
 		a.showError(err)
 		return nil
 	}
-	application.Get().Event.Emit("task:updated", *task)
+	emitTaskUpdated(*task)
 	return task
 }
 
@@ -254,7 +262,7 @@ func (a *App) FinishTask(id int64) *Task {
 		a.showError(err)
 		return nil
 	}
-	application.Get().Event.Emit("task:updated", *task)
+	emitTaskUpdated(*task)
 	return task
 }
 
@@ -280,7 +288,7 @@ func (a *App) EditTask(id int64, title string, description string, categoryID in
 		a.showError(err)
 		return nil
 	}
-	application.Get().Event.Emit("task:updated", *task)
+	emitTaskUpdated(*task)
 	return task
 }
 
