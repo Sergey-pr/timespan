@@ -3,13 +3,19 @@ package main
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
+// Binding calls arrive concurrently, so the two pieces of shared state each get a lock:
+// taskMu makes a read-modify-write on a task atomic, windowsMu guards the window map.
+
 type App struct {
+	taskMu       sync.Mutex
+	windowsMu    sync.Mutex
 	timerWindows map[int64]*application.WebviewWindow
 	errorWindow  *application.WebviewWindow
 }
@@ -187,6 +193,9 @@ func (a *App) CreateTask(title string, description string, categoryID int64) *Ta
 
 // StartTask pauses any currently running task then starts the given task.
 func (a *App) StartTask(id int64) *Task {
+	a.taskMu.Lock()
+	defer a.taskMu.Unlock()
+
 	now := time.Now()
 
 	running, err := GetRunningTask()
@@ -225,6 +234,9 @@ func (a *App) StartTask(id int64) *Task {
 
 // PauseTask accumulates elapsed time and pauses the task.
 func (a *App) PauseTask(id int64) *Task {
+	a.taskMu.Lock()
+	defer a.taskMu.Unlock()
+
 	task, err := GetTaskByID(id)
 	if err != nil {
 		a.showError(err)
@@ -246,6 +258,9 @@ func (a *App) PauseTask(id int64) *Task {
 
 // FinishTask accumulates final elapsed time and marks the task done.
 func (a *App) FinishTask(id int64) *Task {
+	a.taskMu.Lock()
+	defer a.taskMu.Unlock()
+
 	task, err := GetTaskByID(id)
 	if err != nil {
 		a.showError(err)
@@ -268,6 +283,9 @@ func (a *App) FinishTask(id int64) *Task {
 
 // EditTask updates the title, description and category of a task. categoryID == 0 clears the category.
 func (a *App) EditTask(id int64, title string, description string, categoryID int64) *Task {
+	a.taskMu.Lock()
+	defer a.taskMu.Unlock()
+
 	task, err := GetTaskByID(id)
 	if err != nil {
 		a.showError(err)
@@ -308,6 +326,9 @@ func (a *App) DeleteTask(id int64) bool {
 
 // OpenTimerWindow shows (or creates) the floating timer window for the given task.
 func (a *App) OpenTimerWindow(id int64) {
+	a.windowsMu.Lock()
+	defer a.windowsMu.Unlock()
+
 	if w, ok := a.timerWindows[id]; ok {
 		w.Show()
 		w.Focus()
@@ -330,6 +351,9 @@ func (a *App) OpenTimerWindow(id int64) {
 
 // CloseTimerWindow hides the floating timer window for the given task.
 func (a *App) CloseTimerWindow(id int64) {
+	a.windowsMu.Lock()
+	defer a.windowsMu.Unlock()
+
 	if w, ok := a.timerWindows[id]; ok {
 		w.Hide()
 		delete(a.timerWindows, id)
