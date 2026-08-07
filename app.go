@@ -8,6 +8,7 @@ import (
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/wailsapp/wails/v3/pkg/application"
+	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
 // Binding calls arrive concurrently, so the two pieces of shared state each get a lock:
@@ -346,18 +347,31 @@ func (a *App) OpenTimerWindow(id int64) {
 		URL:            fmt.Sprintf("/timer.html?taskId=%d", id),
 		HideOnEscape:   true,
 	})
+	// A window destroyed by the OS or at shutdown reports back here, so the map
+	// never holds on to a window that is already gone.
+	w.OnWindowEvent(events.Common.WindowClosing, func(*application.WindowEvent) {
+		a.forgetTimerWindow(id)
+	})
 	a.timerWindows[id] = w
 }
 
-// CloseTimerWindow hides the floating timer window for the given task.
+// CloseTimerWindow destroys the floating timer window for the given task.
+// Hiding it instead would leak the WebView: reopening always builds a new window.
 func (a *App) CloseTimerWindow(id int64) {
 	a.windowsMu.Lock()
-	defer a.windowsMu.Unlock()
+	w, ok := a.timerWindows[id]
+	delete(a.timerWindows, id)
+	a.windowsMu.Unlock()
 
-	if w, ok := a.timerWindows[id]; ok {
-		w.Hide()
-		delete(a.timerWindows, id)
+	if ok {
+		w.Close()
 	}
+}
+
+func (a *App) forgetTimerWindow(id int64) {
+	a.windowsMu.Lock()
+	defer a.windowsMu.Unlock()
+	delete(a.timerWindows, id)
 }
 
 // CloseErrorWindow hides the error window.
