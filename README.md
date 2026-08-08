@@ -31,10 +31,10 @@ Click the clock icon on any active task to pop open a floating always-on-top tim
 ## Prerequisites
 
 - **Go** 1.25+ (the version in `go.mod` is the source of truth)
-- **Node.js** 18+ and npm
+- **Node.js** 20.19+ and npm (required by Vite 7)
 - **Wails v3 CLI** install once, matching the `wails/v3` version in `go.mod`:
   ```sh
-  go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha.74
+  go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-beta.5
   ```
 
 > `wails3` must be on your PATH. If installed via `go install`, add `~/go/bin` to your shell's PATH:
