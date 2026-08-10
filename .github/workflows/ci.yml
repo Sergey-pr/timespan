@@ -45,6 +45,20 @@ jobs:
             exit 1
           fi
 
+      # Status values must come from the TaskStatus constants on both sides.
+      # A raw literal is how crash recovery silently broke once already.
+      - name: Check for raw status literals
+        run: |
+          if git grep -nE "['\"](ready_to_start|active|paused|finished|running|pending)['\"]" -- \
+            '*.go' '*.js' '*.vue' \
+            ':!task.go' \
+            ':!migrate_test.go' \
+            ':!frontend/src/constants/taskStatus.js' \
+            ':!frontend/bindings/'; then
+            echo "::error::raw status string found — use the TaskStatus constants"
+            exit 1
+          fi
+
       # main.go embeds frontend/dist, which is not committed, so the frontend
       # has to be built before any Go command touches the package.
       - run: npm ci

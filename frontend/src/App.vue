@@ -60,13 +60,13 @@
           <button
             v-if="store.activeByCategory.length > 1 || group.category"
             class="category-group-toggle"
-            @click="toggleGroup(groupKey(group, 'active'))"
+            @click="toggleGroup(groupKey(group, 'open'))"
           >
-            <span class="chevron" :class="{ open: isGroupOpen(group, 'active') }">›</span>
+            <span class="chevron" :class="{ open: isGroupOpen(group, 'open') }">›</span>
             {{ group.category ? group.category.name : 'No category' }}
             <span class="group-count">({{ group.tasks.length }})</span>
           </button>
-          <div v-if="isGroupOpen(group, 'active')" class="task-list">
+          <div v-if="isGroupOpen(group, 'open')" class="task-list">
             <TaskCard
               v-for="task in group.tasks"
               :key="task.id"
@@ -96,13 +96,13 @@
           <button
             v-if="store.finishedByCategory.length > 1 || group.category"
             class="category-group-toggle"
-            @click="toggleGroup(groupKey(group, 'finished'))"
+            @click="toggleGroup(groupKey(group, 'done'))"
           >
-            <span class="chevron" :class="{ open: isGroupOpen(group, 'finished') }">›</span>
+            <span class="chevron" :class="{ open: isGroupOpen(group, 'done') }">›</span>
             {{ group.category ? group.category.name : 'No category' }}
             <span class="group-count">({{ group.tasks.length }})</span>
           </button>
-          <div v-if="isGroupOpen(group, 'finished')" class="task-list">
+          <div v-if="isGroupOpen(group, 'done')" class="task-list">
             <TaskCard
               v-for="task in group.tasks"
               :key="task.id"
