@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/doug-martin/goqu/v9"
@@ -84,6 +86,11 @@ func ResetRunningTasks() error {
 
 // Save inserts or updates the task. ID == 0 means a new record.
 func (t *Task) Save() error {
+	t.Title = strings.TrimSpace(t.Title)
+	if t.Title == "" {
+		return errors.New("task title cannot be empty")
+	}
+
 	if t.ID == 0 {
 		t.CreatedAt = time.Now()
 		result, err := goquDB.Insert(taskTable).Rows(t).Executor().Exec()
