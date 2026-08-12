@@ -48,6 +48,60 @@ export class Category {
     }
 }
 
+/**
+ * ExportResult separates the three outcomes an export can have.
+ * Details of a failure go to the error window, not into this struct.
+ */
+export class ExportResult {
+    /**
+     * Creates a new ExportResult instance.
+     * @param {Partial<ExportResult>} [$$source = {}] - The source object to create the ExportResult.
+     */
+    constructor($$source = {}) {
+        if (!("status" in $$source)) {
+            /**
+             * @member
+             * @type {ExportStatus}
+             */
+            this["status"] = ExportStatus.$zero;
+        }
+        if (!("path" in $$source)) {
+            /**
+             * @member
+             * @type {string}
+             */
+            this["path"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ExportResult instance from a string or object.
+     * @param {any} [$$source = {}]
+     * @returns {ExportResult}
+     */
+    static createFrom($$source = {}) {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ExportResult(/** @type {Partial<ExportResult>} */($$parsedSource));
+    }
+}
+
+/**
+ * @readonly
+ * @enum {string}
+ */
+export const ExportStatus = {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero: "",
+
+    ExportSaved: "saved",
+    ExportCancelled: "cancelled",
+    ExportFailed: "failed",
+};
+
 export class Task {
     /**
      * Creates a new Task instance.

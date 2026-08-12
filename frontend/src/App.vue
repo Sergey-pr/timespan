@@ -125,6 +125,8 @@
       </div>
     </div>
 
+    <div v-if="toast" class="toast" :class="toast.tone">{{ toast.message }}</div>
+
     <!-- Categories management modal -->
     <CategoriesModal
       v-if="showCategoryModal"
@@ -139,6 +141,7 @@ import { useTaskStore } from './stores/taskStore.js'
 import TaskCard from './components/TaskCard.vue'
 import CategoriesModal from './components/CategoriesModal.vue'
 import { formatElapsed } from './utils/time.js'
+import { ExportStatus } from '../bindings/timespan/models.js'
 
 const store = useTaskStore()
 const newTitle = ref('')
@@ -149,10 +152,25 @@ const showCategoryModal = ref(false)
 const collapsedGroups = ref(new Set())
 const exporting = ref(false)
 
+const toast = ref(null)
+let toastTimer = null
+
+function showToast(message, tone = 'success') {
+  toast.value = { message, tone }
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => { toast.value = null }, 4000)
+}
+
 async function handleExport() {
   exporting.value = true
   try {
-    await store.exportReport()
+    const result = await store.exportReport()
+    if (result.status === ExportStatus.ExportSaved) {
+      showToast(`Saved to ${result.path}`)
+    } else if (result.status === ExportStatus.ExportFailed) {
+      // The error window carries the detail; this only says which action failed.
+      showToast('Export failed', 'error')
+    }
   } finally {
     exporting.value = false
   }

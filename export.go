@@ -7,6 +7,21 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
+type ExportStatus string
+
+const (
+	ExportSaved     ExportStatus = "saved"
+	ExportCancelled ExportStatus = "cancelled"
+	ExportFailed    ExportStatus = "failed"
+)
+
+// ExportResult separates the three outcomes an export can have.
+// Details of a failure go to the error window, not into this struct.
+type ExportResult struct {
+	Status ExportStatus `json:"status"`
+	Path   string       `json:"path"`
+}
+
 var statusLabels = map[TaskStatus]string{
 	StatusReadyToStart: "Ready to start",
 	StatusActive:       "Active",

@@ -90,11 +90,12 @@ export function EditTask(id, title, description, categoryID) {
 
 /**
  * ExportReport prompts for a save location and writes an xlsx report of all tasks.
- * Returns the chosen path on success, or an empty string if the user cancelled.
- * @returns {$CancellablePromise<string>}
+ * @returns {$CancellablePromise<$models.ExportResult>}
  */
 export function ExportReport() {
-    return $Call.ByID(1503379429);
+    return $Call.ByID(1503379429).then(/** @type {($result: any) => any} */(($result) => {
+        return $$createType4($result);
+    }));
 }
 
 /**
@@ -114,7 +115,7 @@ export function FinishTask(id) {
  */
 export function GetCategories() {
     return $Call.ByID(559270627).then(/** @type {($result: any) => any} */(($result) => {
-        return $$createType4($result);
+        return $$createType5($result);
     }));
 }
 
@@ -124,7 +125,7 @@ export function GetCategories() {
  */
 export function GetTasks() {
     return $Call.ByID(4294202735).then(/** @type {($result: any) => any} */(($result) => {
-        return $$createType5($result);
+        return $$createType6($result);
     }));
 }
 
@@ -185,5 +186,6 @@ const $$createType0 = $models.Category.createFrom;
 const $$createType1 = $Create.Nullable($$createType0);
 const $$createType2 = $models.Task.createFrom;
 const $$createType3 = $Create.Nullable($$createType2);
-const $$createType4 = $Create.Array($$createType0);
-const $$createType5 = $Create.Array($$createType2);
+const $$createType4 = $models.ExportResult.createFrom;
+const $$createType5 = $Create.Array($$createType0);
+const $$createType6 = $Create.Array($$createType2);

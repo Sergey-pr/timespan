@@ -9,6 +9,8 @@ export {
 
 export {
     Category,
+    ExportResult,
+    ExportStatus,
     Task,
     TaskStatus
 } from "./models.js";
