@@ -17,8 +17,8 @@ type Category struct {
 	CreatedAt time.Time `db:"created_at" json:"createdAt"  goqu:"skipupdate"`
 }
 
-// GetCategories returns all categories sorted alphabetically.
-func GetCategories() ([]Category, error) {
+// ListCategories returns all categories sorted alphabetically.
+func ListCategories() ([]Category, error) {
 	var cats []Category
 	err := goquDB.From(categoryTable).
 		Order(goqu.I("name").Asc()).

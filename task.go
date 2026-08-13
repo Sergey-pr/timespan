@@ -32,8 +32,8 @@ type Task struct {
 	FinishedAt  *time.Time `db:"finished_at" json:"finishedAt,omitempty"`
 }
 
-// GetTasks returns all tasks sorted by created_at desc.
-func GetTasks() ([]Task, error) {
+// ListTasks returns all tasks sorted by created_at desc.
+func ListTasks() ([]Task, error) {
 	var tasks []Task
 	err := goquDB.From(taskTable).
 		Order(goqu.I("created_at").Desc()).
@@ -42,6 +42,16 @@ func GetTasks() ([]Task, error) {
 		tasks = []Task{}
 	}
 	return tasks, err
+}
+
+// CountTasksInCategory returns how many tasks reference the given category.
+func CountTasksInCategory(categoryID int64) (int, error) {
+	var count int
+	_, err := goquDB.From(taskTable).
+		Select(goqu.COUNT("*")).
+		Where(goqu.C("category_id").Eq(categoryID)).
+		ScanVal(&count)
+	return count, err
 }
 
 // GetTaskByID returns the task with the given id, or an error if not found.

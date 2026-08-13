@@ -7,9 +7,9 @@ import (
 
 func countActive(t *testing.T) int {
 	t.Helper()
-	tasks, err := GetTasks()
+	tasks, err := ListTasks()
 	if err != nil {
-		t.Fatalf("GetTasks: %v", err)
+		t.Fatalf("ListTasks: %v", err)
 	}
 	active := 0
 	for _, task := range tasks {

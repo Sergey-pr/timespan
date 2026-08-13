@@ -59,11 +59,11 @@ func liveElapsed(t Task) int64 {
 
 // buildReport creates an xlsx report of all tasks and writes it to path.
 func buildReport(path string) error {
-	tasks, err := GetTasks()
+	tasks, err := ListTasks()
 	if err != nil {
 		return err
 	}
-	cats, err := GetCategories()
+	cats, err := ListCategories()
 	if err != nil {
 		return err
 	}

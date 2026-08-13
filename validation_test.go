@@ -35,9 +35,9 @@ func TestCreateTaskRejectsBlankTitle(t *testing.T) {
 		t.Errorf("CreateTask returned %+v, want nil", task)
 	}
 
-	tasks, err := GetTasks()
+	tasks, err := ListTasks()
 	if err != nil {
-		t.Fatalf("GetTasks: %v", err)
+		t.Fatalf("ListTasks: %v", err)
 	}
 	if len(tasks) != 0 {
 		t.Errorf("%d tasks stored, want none", len(tasks))

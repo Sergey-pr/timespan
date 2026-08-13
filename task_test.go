@@ -113,9 +113,9 @@ func TestOnlyOneTaskRunsAtATime(t *testing.T) {
 		app.StartTask(app.CreateTask(title, "", 0).ID)
 	}
 
-	tasks, err := GetTasks()
+	tasks, err := ListTasks()
 	if err != nil {
-		t.Fatalf("GetTasks: %v", err)
+		t.Fatalf("ListTasks: %v", err)
 	}
 	active := 0
 	for _, task := range tasks {

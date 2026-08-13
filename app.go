@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/doug-martin/goqu/v9"
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/events"
 )
@@ -77,7 +76,7 @@ func (a *App) runTimer(ctx context.Context) {
 
 // GetTasks returns all tasks sorted by created_at desc.
 func (a *App) GetTasks() []Task {
-	tasks, err := GetTasks()
+	tasks, err := ListTasks()
 	if err != nil {
 		a.showError(err)
 		return []Task{}
@@ -108,7 +107,7 @@ func (a *App) ExportReport() ExportResult {
 
 // GetCategories returns all categories sorted alphabetically.
 func (a *App) GetCategories() []Category {
-	cats, err := GetCategories()
+	cats, err := ListCategories()
 	if err != nil {
 		a.showError(err)
 		return []Category{}
@@ -143,16 +142,12 @@ func (a *App) RenameCategory(id int64, name string) *Category {
 
 // DeleteCategory removes a category. Returns false if any tasks still reference it.
 func (a *App) DeleteCategory(id int64) bool {
-	var count int
-	found, err := goquDB.From(taskTable).
-		Select(goqu.COUNT("*")).
-		Where(goqu.C("category_id").Eq(id)).
-		ScanVal(&count)
+	count, err := CountTasksInCategory(id)
 	if err != nil {
 		a.showError(err)
 		return false
 	}
-	if found && count > 0 {
+	if count > 0 {
 		a.showError(fmt.Errorf("cannot delete category: %d task(s) still use it", count))
 		return false
 	}
