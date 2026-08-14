@@ -4,11 +4,15 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/events"
 )
+
+// tickInterval is how often the frontend advances elapsed time for the running task.
+const tickInterval = 500 * time.Millisecond
 
 // Binding calls arrive concurrently, so the two pieces of shared state each get a lock:
 // taskMu makes a read-modify-write on a task atomic, windowsMu guards the window map.
@@ -18,10 +22,15 @@ type App struct {
 	windowsMu    sync.Mutex
 	timerWindows map[int64]*application.WebviewWindow
 	errorWindow  *application.WebviewWindow
+	tickerOn     atomic.Bool
+	tickerWake   chan struct{}
 }
 
 func NewApp() *App {
-	return &App{timerWindows: make(map[int64]*application.WebviewWindow)}
+	return &App{
+		timerWindows: make(map[int64]*application.WebviewWindow),
+		tickerWake:   make(chan struct{}, 1),
+	}
 }
 
 // SetErrorWindow stores the error window reference (called from main before Run).
@@ -45,6 +54,13 @@ func emitTaskUpdated(task Task) {
 	}
 }
 
+// emitTick tells the frontend to advance elapsed time for the running task.
+func emitTick() {
+	if app := application.Get(); app != nil {
+		app.Event.Emit("tick")
+	}
+}
+
 // ServiceStartup is called by the Wails v3 service system when the app starts.
 func (a *App) ServiceStartup(ctx context.Context, _ application.ServiceOptions) error {
 	dsn, err := defaultDSN()
@@ -57,20 +73,45 @@ func (a *App) ServiceStartup(ctx context.Context, _ application.ServiceOptions) 
 	if err := ResetRunningTasks(); err != nil {
 		return err
 	}
+	a.syncTicker()
 	go a.runTimer(ctx)
 	return nil
 }
 
+// runTimer emits a tick only while a task is running, so an idle app stays asleep.
 func (a *App) runTimer(ctx context.Context) {
-	ticker := time.NewTicker(500 * time.Millisecond)
+	ticker := time.NewTicker(tickInterval)
 	defer ticker.Stop()
+	if !a.tickerOn.Load() {
+		ticker.Stop()
+	}
 	for {
 		select {
 		case <-ticker.C:
-			application.Get().Event.Emit("tick")
+			emitTick()
+		case <-a.tickerWake:
+			if a.tickerOn.Load() {
+				ticker.Reset(tickInterval)
+			} else {
+				ticker.Stop()
+			}
 		case <-ctx.Done():
 			return
 		}
+	}
+}
+
+// syncTicker matches the tick to reality: running while a task is active, stopped otherwise.
+func (a *App) syncTicker() {
+	running, err := GetRunningTask()
+	if err != nil {
+		a.showError(err)
+		return
+	}
+	a.tickerOn.Store(running != nil)
+	select {
+	case a.tickerWake <- struct{}{}:
+	default:
 	}
 }
 
@@ -223,6 +264,7 @@ func (a *App) StartTask(id int64) *Task {
 		a.showError(err)
 		return nil
 	}
+	a.syncTicker()
 	emitTaskUpdated(*task)
 	return task
 }
@@ -247,6 +289,7 @@ func (a *App) PauseTask(id int64) *Task {
 		a.showError(err)
 		return nil
 	}
+	a.syncTicker()
 	emitTaskUpdated(*task)
 	return task
 }
@@ -272,6 +315,7 @@ func (a *App) FinishTask(id int64) *Task {
 		a.showError(err)
 		return nil
 	}
+	a.syncTicker()
 	emitTaskUpdated(*task)
 	return task
 }
@@ -316,6 +360,7 @@ func (a *App) DeleteTask(id int64) bool {
 		a.showError(err)
 		return false
 	}
+	a.syncTicker()
 	return true
 }
 
