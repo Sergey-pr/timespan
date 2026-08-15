@@ -85,6 +85,9 @@ Tasks are stored in SQLite at:
 | Linux    | `~/.config/TimeSpan/timespan.db`                     |
 | Windows  | `%APPDATA%\TimeSpan\timespan.db`                     |
 
+A `timespan.log` sits next to the database in the same directory. Backend errors are written there as
+well as shown in the error window, which is where to look when something failed in an earlier session.
+
 Any task in `active` state when the app closes is reset to `paused` on next startup; the unfinished segment is discarded rather than counted as work time.
 
 ## License

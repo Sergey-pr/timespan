@@ -13,19 +13,29 @@ import (
 // goquDB is the shared database connection used by all model methods.
 var goquDB *goqu.Database
 
-// defaultDSN returns the database path in the user's config dir, creating the dir.
-func defaultDSN() (string, error) {
-	configDir, err := os.UserConfigDir()
+const dbFileName = "timespan.db"
+
+// configDir returns the app's data directory, creating it if needed.
+func configDir() (string, error) {
+	base, err := os.UserConfigDir()
 	if err != nil {
 		return "", err
 	}
 
-	dir := filepath.Join(configDir, "TimeSpan")
+	dir := filepath.Join(base, "TimeSpan")
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return "", err
 	}
+	return dir, nil
+}
 
-	return filepath.Join(dir, "timespan.db"), nil
+// defaultDSN returns the database path in the user's config dir.
+func defaultDSN() (string, error) {
+	dir, err := configDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, dbFileName), nil
 }
 
 // initDB opens the database at dsn, migrates it and stores it in goquDB.

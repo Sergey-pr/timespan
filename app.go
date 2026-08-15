@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"path/filepath"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -38,8 +40,14 @@ func (a *App) SetErrorWindow(w *application.WebviewWindow) {
 	a.errorWindow = w
 }
 
+// showError logs the failure and surfaces it in the error window.
+// Logging comes first so a failure is recorded even with no window to show it in.
 func (a *App) showError(err error) {
-	if err == nil || a.errorWindow == nil {
+	if err == nil {
+		return
+	}
+	slog.Error("backend error", "error", err)
+	if a.errorWindow == nil {
 		return
 	}
 	application.Get().Event.Emit("app:error", err.Error())
@@ -63,14 +71,21 @@ func emitTick() {
 
 // ServiceStartup is called by the Wails v3 service system when the app starts.
 func (a *App) ServiceStartup(ctx context.Context, _ application.ServiceOptions) error {
-	dsn, err := defaultDSN()
+	dir, err := configDir()
 	if err != nil {
 		return err
 	}
-	if err := initDB(dsn); err != nil {
+	if err := initLogger(dir); err != nil {
+		slog.Warn("file logging unavailable", "error", err)
+	}
+	slog.Info("starting", "dir", dir)
+
+	if err := initDB(filepath.Join(dir, dbFileName)); err != nil {
+		slog.Error("database init failed", "error", err)
 		return err
 	}
 	if err := ResetRunningTasks(); err != nil {
+		slog.Error("crash recovery failed", "error", err)
 		return err
 	}
 	a.syncTicker()
