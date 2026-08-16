@@ -22,6 +22,7 @@ import {
   CloseTimerWindow,
 } from '../bindings/timespan/app.js'
 import { TaskStatus } from './constants/taskStatus.js'
+import { formatElapsed, segmentStart, liveElapsed } from './utils/time.js'
 
 const task = ref(null)
 const baseElapsed = ref(0)
@@ -30,20 +31,11 @@ const now = ref(Date.now())
 
 const taskId = parseInt(new URLSearchParams(window.location.search).get('taskId') ?? '0', 10)
 
-const liveElapsed = computed(() => {
-  if (task.value?.status === TaskStatus.ACTIVE && segmentStartedAt.value !== null) {
-    return baseElapsed.value + (now.value - segmentStartedAt.value)
-  }
-  return baseElapsed.value
-})
-
 const formattedElapsed = computed(() => {
-  const ms = liveElapsed.value
-  const totalSec = Math.floor(ms / 1000)
-  const h = Math.floor(totalSec / 3600)
-  const m = Math.floor((totalSec % 3600) / 60)
-  const s = totalSec % 60
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  const running = task.value?.status === TaskStatus.ACTIVE
+  return formatElapsed(
+    liveElapsed(baseElapsed.value, running ? segmentStartedAt.value : null, now.value),
+  )
 })
 
 async function loadTask() {
@@ -53,7 +45,7 @@ async function loadTask() {
   if (found) {
     task.value = found
     baseElapsed.value = found.elapsedMs
-    segmentStartedAt.value = found.startedAt ? new Date(found.startedAt).getTime() : null
+    segmentStartedAt.value = segmentStart(found)
   }
 }
 
@@ -66,7 +58,7 @@ function onTaskUpdated(ev) {
   if (!updated || updated.id !== taskId) return
   task.value = updated
   baseElapsed.value = updated.elapsedMs
-  segmentStartedAt.value = updated.startedAt ? new Date(updated.startedAt).getTime() : null
+  segmentStartedAt.value = segmentStart(updated)
   now.value = Date.now()
 }
 
@@ -86,7 +78,7 @@ async function resume() {
   if (updated) {
     task.value = updated
     baseElapsed.value = updated.elapsedMs
-    segmentStartedAt.value = updated.startedAt ? new Date(updated.startedAt).getTime() : Date.now()
+    segmentStartedAt.value = segmentStart(updated) ?? Date.now()
   }
 }
 

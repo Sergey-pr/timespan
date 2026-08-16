@@ -17,6 +17,7 @@ import {
   ExportReport,
 } from '../../bindings/timespan/app.js'
 import { TaskStatus } from '../constants/taskStatus.js'
+import { segmentStart, liveElapsed } from '../utils/time.js'
 
 export const useTaskStore = defineStore('tasks', () => {
   const tasks = ref([])
@@ -155,14 +156,14 @@ export const useTaskStore = defineStore('tasks', () => {
     const now = Date.now()
     tasks.value.forEach(t => {
       if (t.status === TaskStatus.ACTIVE && t._segStart != null) {
-        t.elapsedMs = t._baseElapsed + (now - t._segStart)
+        t.elapsedMs = liveElapsed(t._baseElapsed, t._segStart, now)
       }
     })
   }
 
   function resetSegment(task) {
     task._baseElapsed = task.elapsedMs
-    task._segStart = task.startedAt ? new Date(task.startedAt).getTime() : null
+    task._segStart = segmentStart(task)
   }
 
   function applyUpdate(updated) {
