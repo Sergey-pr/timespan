@@ -8,10 +8,6 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
-import * as application$0 from "../github.com/wailsapp/wails/v3/pkg/application/models.js";
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore: Unused imports
 import * as $models from "./models.js";
 
 /**
@@ -159,15 +155,6 @@ export function RenameCategory(id, name) {
     return $Call.ByID(3179227807, id, name).then(/** @type {($result: any) => any} */(($result) => {
         return $$createType1($result);
     }));
-}
-
-/**
- * SetErrorWindow stores the error window reference (called from main before Run).
- * @param {application$0.WebviewWindow | null} w
- * @returns {$CancellablePromise<void>}
- */
-export function SetErrorWindow(w) {
-    return $Call.ByID(302051195, w);
 }
 
 /**

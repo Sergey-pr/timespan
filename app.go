@@ -35,7 +35,10 @@ func NewApp() *App {
 	}
 }
 
-// SetErrorWindow stores the error window reference (called from main before Run).
+// SetErrorWindow stores the error window reference. Called from main before Run,
+// never from JS, so it is kept out of the bindings.
+//
+//wails:ignore
 func (a *App) SetErrorWindow(w *application.WebviewWindow) {
 	a.errorWindow = w
 }
