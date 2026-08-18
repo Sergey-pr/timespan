@@ -1,5 +1,5 @@
 <template>
-  <div class="task-card" :class="{ running: task.status === TaskStatus.ACTIVE }">
+  <div class="task-card" :class="{ running: task.status === TaskStatus.StatusActive }">
     <!-- Edit mode -->
     <template v-if="editing">
       <div class="task-edit-form">
@@ -41,19 +41,19 @@
           </div>
         </div>
         <div class="task-actions">
-          <template v-if="task.status === TaskStatus.READY_TO_START">
+          <template v-if="task.status === TaskStatus.StatusReadyToStart">
             <button class="btn-primary" @click="$emit('start', task.id)">Start</button>
           </template>
-          <template v-else-if="task.status === TaskStatus.ACTIVE">
+          <template v-else-if="task.status === TaskStatus.StatusActive">
             <button class="btn-ghost" @click="$emit('pause', task.id)">Pause</button>
             <button class="btn-ghost" @click="$emit('finish', task.id)">Finish</button>
             <button class="btn-ghost" @click="$emit('open-timer', task.id)">Timer</button>
           </template>
-          <template v-else-if="task.status === TaskStatus.PAUSED">
+          <template v-else-if="task.status === TaskStatus.StatusPaused">
             <button class="btn-primary" @click="$emit('start', task.id)">Resume</button>
             <button class="btn-ghost" @click="$emit('finish', task.id)">Finish</button>
           </template>
-          <template v-else-if="task.status === TaskStatus.FINISHED">
+          <template v-else-if="task.status === TaskStatus.StatusFinished">
             <button class="btn-ghost" @click="$emit('start', task.id)">Continue</button>
           </template>
           <button class="btn-icon" title="Edit" @click="startEdit">✎</button>

@@ -15,8 +15,7 @@ const (
 	ExportFailed    ExportStatus = "failed"
 )
 
-// ExportResult separates the three outcomes an export can have.
-// Details of a failure go to the error window, not into this struct.
+// ExportResult separates the three outcomes; failure detail goes to the error window.
 type ExportResult struct {
 	Status ExportStatus `json:"status"`
 	Path   string       `json:"path"`

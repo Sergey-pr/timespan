@@ -71,8 +71,7 @@ func TestMigrateIsIdempotent(t *testing.T) {
 	}
 }
 
-// The pending→ready_to_start repair migration is the one that has to keep working
-// on databases written by older builds.
+// The repair migration has to keep working on databases written by older builds.
 func TestMigrateNormalisesLegacyPendingStatus(t *testing.T) {
 	db := newTestDB(t)
 

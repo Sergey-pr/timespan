@@ -49,8 +49,7 @@ export class Category {
 }
 
 /**
- * ExportResult separates the three outcomes an export can have.
- * Details of a failure go to the error window, not into this struct.
+ * ExportResult separates the three outcomes; failure detail goes to the error window.
  */
 export class ExportResult {
     /**

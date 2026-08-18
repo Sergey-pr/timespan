@@ -8,8 +8,7 @@ export function formatElapsed(ms) {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
-// Timestamp the task's running segment started at, or null when it is not running.
-// Go clears started_at on pause and finish, so null means there is nothing to advance.
+// Timestamp the running segment started at, or null when the task is not running.
 export function segmentStart(task) {
   return task?.startedAt ? new Date(task.startedAt).getTime() : null
 }

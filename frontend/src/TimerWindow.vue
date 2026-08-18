@@ -6,8 +6,8 @@
     </div>
     <div class="timer-elapsed">{{ formattedElapsed }}</div>
     <div class="timer-actions">
-      <button v-if="task?.status === TaskStatus.ACTIVE" @click="pause">Pause</button>
-      <button v-else-if="task?.status === TaskStatus.PAUSED" @click="resume">Resume</button>
+      <button v-if="task?.status === TaskStatus.StatusActive" @click="pause">Pause</button>
+      <button v-else-if="task?.status === TaskStatus.StatusPaused" @click="resume">Resume</button>
     </div>
   </div>
 </template>
@@ -32,7 +32,7 @@ const now = ref(Date.now())
 const taskId = parseInt(new URLSearchParams(window.location.search).get('taskId') ?? '0', 10)
 
 const formattedElapsed = computed(() => {
-  const running = task.value?.status === TaskStatus.ACTIVE
+  const running = task.value?.status === TaskStatus.StatusActive
   return formatElapsed(
     liveElapsed(baseElapsed.value, running ? segmentStartedAt.value : null, now.value),
   )

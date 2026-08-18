@@ -6,7 +6,6 @@ import (
 )
 
 // newTestApp gives every test a migrated, empty in-memory database.
-// The App has no error window, so showError stays silent.
 func newTestApp(t *testing.T) *App {
 	t.Helper()
 	if err := initDB(":memory:"); err != nil {

@@ -84,8 +84,7 @@ func GetRunningTask() (*Task, error) {
 	return &task, nil
 }
 
-// ResetRunningTasks pauses tasks left active by a crash or force-quit.
-// The unfinished segment is dropped, since its real duration is unknowable.
+// ResetRunningTasks pauses tasks left active by a crash, dropping the unfinished segment.
 func ResetRunningTasks() error {
 	_, err := goquDB.Update(taskTable).
 		Set(goqu.Record{"status": StatusPaused, "started_at": nil}).

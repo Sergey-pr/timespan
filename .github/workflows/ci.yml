@@ -53,7 +53,6 @@ jobs:
             '*.go' '*.js' '*.vue' \
             ':!task.go' \
             ':!migrate_test.go' \
-            ':!frontend/src/constants/taskStatus.js' \
             ':!frontend/bindings/'; then
             echo "::error::raw status string found — use the TaskStatus constants"
             exit 1

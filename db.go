@@ -39,7 +39,6 @@ func defaultDSN() (string, error) {
 }
 
 // initDB opens the database at dsn, migrates it and stores it in goquDB.
-// Tests pass ":memory:" here.
 func initDB(dsn string) error {
 	sqlDB, err := sql.Open("sqlite", dsn)
 	if err != nil {

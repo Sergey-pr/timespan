@@ -1,17 +1,12 @@
-// Canonical task status values — must match the TaskStatus constants in task.go
-// byte-for-byte. This is the single source of truth on the frontend; compare
-// task.status against TaskStatus.* rather than string literals.
-export const TaskStatus = Object.freeze({
-  READY_TO_START: 'ready_to_start',
-  ACTIVE:         'active',
-  PAUSED:         'paused',
-  FINISHED:       'finished',
-})
+import { TaskStatus } from '../../bindings/timespan/models.js'
 
-// Human-readable labels for display (mirrors statusLabels in export.go).
+// Values come from the Go constants via the generated bindings and cannot drift.
+export { TaskStatus }
+
+// Human-readable labels (mirrors statusLabels in export.go).
 export const TaskStatusLabel = Object.freeze({
-  [TaskStatus.READY_TO_START]: 'Ready to start',
-  [TaskStatus.ACTIVE]:         'Active',
-  [TaskStatus.PAUSED]:         'Paused',
-  [TaskStatus.FINISHED]:       'Finished',
+  [TaskStatus.StatusReadyToStart]: 'Ready to start',
+  [TaskStatus.StatusActive]:       'Active',
+  [TaskStatus.StatusPaused]:       'Paused',
+  [TaskStatus.StatusFinished]:     'Finished',
 })

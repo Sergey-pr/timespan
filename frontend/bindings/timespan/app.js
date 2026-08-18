@@ -19,8 +19,7 @@ export function CloseErrorWindow() {
 }
 
 /**
- * CloseTimerWindow destroys the floating timer window for the given task.
- * Hiding it instead would leak the WebView: reopening always builds a new window.
+ * CloseTimerWindow destroys the window; hiding it would leak the WebView on reopen.
  * @param {number} id
  * @returns {$CancellablePromise<void>}
  */

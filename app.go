@@ -16,10 +16,8 @@ import (
 // tickInterval is how often the frontend advances elapsed time for the running task.
 const tickInterval = 500 * time.Millisecond
 
-// Binding calls arrive concurrently, so the two pieces of shared state each get a lock:
-// taskMu makes a read-modify-write on a task atomic, windowsMu guards the window map.
-
 type App struct {
+	// taskMu makes a read-modify-write on a task atomic; windowsMu guards the window map.
 	taskMu       sync.Mutex
 	windowsMu    sync.Mutex
 	timerWindows map[int64]*application.WebviewWindow
@@ -35,16 +33,14 @@ func NewApp() *App {
 	}
 }
 
-// SetErrorWindow stores the error window reference. Called from main before Run,
-// never from JS, so it is kept out of the bindings.
+// SetErrorWindow stores the error window reference; only main.go calls it.
 //
 //wails:ignore
 func (a *App) SetErrorWindow(w *application.WebviewWindow) {
 	a.errorWindow = w
 }
 
-// showError logs the failure and surfaces it in the error window.
-// Logging comes first so a failure is recorded even with no window to show it in.
+// showError logs first, so a failure is recorded even with no window to show it in.
 func (a *App) showError(err error) {
 	if err == nil {
 		return
@@ -57,8 +53,7 @@ func (a *App) showError(err error) {
 	a.errorWindow.Show()
 }
 
-// emitTaskUpdated pushes a task change to the frontend.
-// No-op when no application is running, which is the case in tests.
+// emitTaskUpdated pushes a task change to the frontend, no-op without a running app.
 func emitTaskUpdated(task Task) {
 	if app := application.Get(); app != nil {
 		app.Event.Emit("task:updated", task)
@@ -404,16 +399,14 @@ func (a *App) OpenTimerWindow(id int64) {
 		URL:            fmt.Sprintf("/timer.html?taskId=%d", id),
 		HideOnEscape:   true,
 	})
-	// A window destroyed by the OS or at shutdown reports back here, so the map
-	// never holds on to a window that is already gone.
+	// Keeps the map from holding a window the OS or shutdown already destroyed.
 	w.OnWindowEvent(events.Common.WindowClosing, func(*application.WindowEvent) {
 		a.forgetTimerWindow(id)
 	})
 	a.timerWindows[id] = w
 }
 
-// CloseTimerWindow destroys the floating timer window for the given task.
-// Hiding it instead would leak the WebView: reopening always builds a new window.
+// CloseTimerWindow destroys the window; hiding it would leak the WebView on reopen.
 func (a *App) CloseTimerWindow(id int64) {
 	a.windowsMu.Lock()
 	w, ok := a.timerWindows[id]

@@ -10,7 +10,6 @@ import (
 const logFileName = "timespan.log"
 
 // initLogger points slog at a file in dir, falling back to stderr alone if it cannot be opened.
-// The file is deliberately never closed: slog writes are unbuffered, so there is nothing to flush.
 func initLogger(dir string) error {
 	file, err := os.OpenFile(filepath.Join(dir, logFileName), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
