@@ -38,14 +38,25 @@
         </div>
       </form>
 
-      <!-- Search -->
-      <input
-        v-model="store.searchTerm"
-        class="task-search"
-        type="search"
-        placeholder="Search tasks…"
-        autocomplete="off"
-      />
+      <!-- Search + Sort -->
+      <div class="toolbar-row">
+        <input
+          v-model="store.searchTerm"
+          class="task-search"
+          type="search"
+          placeholder="Search tasks…"
+          autocomplete="off"
+        />
+        <select
+          class="sort-select"
+          :value="store.sortMode"
+          @change="store.setSortMode($event.target.value)"
+        >
+          <option v-for="(label, key) in SortModeLabel" :key="key" :value="key">
+            {{ label }}
+          </option>
+        </select>
+      </div>
 
       <p
         v-if="store.searchTerm.trim() && !store.activeTasks.length && !store.finishedTasks.length"
@@ -137,7 +148,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useTaskStore } from './stores/taskStore.js'
+import { useTaskStore, SortMode, SortModeLabel } from './stores/taskStore.js'
 import TaskCard from './components/TaskCard.vue'
 import CategoriesModal from './components/CategoriesModal.vue'
 import { formatElapsed } from './utils/time.js'

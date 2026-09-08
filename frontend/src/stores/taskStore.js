@@ -19,10 +19,66 @@ import {
 import { TaskStatus } from '../constants/taskStatus.js'
 import { segmentStart, liveElapsed } from '../utils/time.js'
 
+export const SortMode = Object.freeze({
+  RecentActivity: 'recent_activity',
+  CreatedDesc:    'created_desc',
+  CreatedAsc:     'created_asc',
+  TitleAsc:       'title_asc',
+  ElapsedDesc:    'elapsed_desc',
+  Status:         'status',
+})
+
+export const SortModeLabel = Object.freeze({
+  [SortMode.RecentActivity]: 'Recent activity',
+  [SortMode.CreatedDesc]:    'Newest first',
+  [SortMode.CreatedAsc]:     'Oldest first',
+  [SortMode.TitleAsc]:       'By title A–Z',
+  [SortMode.ElapsedDesc]:    'Most time first',
+  [SortMode.Status]:         'By status',
+})
+
+const STATUS_PRIORITY = {
+  [TaskStatus.StatusActive]:       0,
+  [TaskStatus.StatusPaused]:       1,
+  [TaskStatus.StatusReadyToStart]: 2,
+  [TaskStatus.StatusFinished]:     3,
+}
+
+function taskComparator(mode) {
+  switch (mode) {
+    case SortMode.RecentActivity:
+      return (a, b) => {
+        const ta = a.startedAt ? new Date(a.startedAt) : new Date(0)
+        const tb = b.startedAt ? new Date(b.startedAt) : new Date(0)
+        return tb - ta
+      }
+    case SortMode.CreatedAsc:
+      return (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+    case SortMode.TitleAsc:
+      return (a, b) => (a.title ?? '').localeCompare(b.title ?? '')
+    case SortMode.ElapsedDesc:
+      return (a, b) => (b.elapsedMs ?? 0) - (a.elapsedMs ?? 0)
+    case SortMode.Status:
+      return (a, b) => (STATUS_PRIORITY[a.status] ?? 9) - (STATUS_PRIORITY[b.status] ?? 9)
+    default:
+      return (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  }
+}
+
+const SORT_STORAGE_KEY = 'timespan:sortMode'
+
+function loadSortMode() {
+  try {
+    const v = localStorage.getItem(SORT_STORAGE_KEY)
+    return Object.values(SortMode).includes(v) ? v : SortMode.RecentActivity
+  } catch { return SortMode.RecentActivity }
+}
+
 export const useTaskStore = defineStore('tasks', () => {
   const tasks = ref([])
   const categories = ref([])
   const searchTerm = ref('')
+  const sortMode = ref(loadSortMode())
 
   // Case-insensitive substring match on title or description.
   // Done in memory (not via SQL LIKE/ILIKE) because SQLite's LIKE is ASCII-only
@@ -47,8 +103,11 @@ export const useTaskStore = defineStore('tasks', () => {
     tasks.value.find(t => t.status === TaskStatus.StatusActive) ?? null
   )
 
-  // Groups a task list by category: named categories sorted A–Z, uncategorised last.
-  // Returns [{ category: Category|null, tasks: Task[] }, ...]
+  function setSortMode(mode) {
+    sortMode.value = mode
+    try { localStorage.setItem(SORT_STORAGE_KEY, mode) } catch {}
+  }
+
   function groupByCategory(taskList) {
     const map = new Map()
     for (const task of taskList) {
@@ -58,6 +117,10 @@ export const useTaskStore = defineStore('tasks', () => {
         map.set(key, { category: cat, tasks: [] })
       }
       map.get(key).tasks.push(task)
+    }
+    const cmp = taskComparator(sortMode.value)
+    for (const group of map.values()) {
+      group.tasks.sort(cmp)
     }
     return [...map.values()].sort((a, b) => {
       if (!a.category && !b.category) return 0
@@ -186,6 +249,8 @@ export const useTaskStore = defineStore('tasks', () => {
     tasks,
     categories,
     searchTerm,
+    sortMode,
+    setSortMode,
     activeTasks,
     finishedTasks,
     activeByCategory,

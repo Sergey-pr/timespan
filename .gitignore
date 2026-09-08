@@ -4,6 +4,8 @@ build/bin/
 /timespan.exe
 identifier.sqlite
 
+.vite/
+
 *.test
 *.out
 /vendor/
