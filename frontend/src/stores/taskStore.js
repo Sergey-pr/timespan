@@ -65,7 +65,22 @@ function taskComparator(mode) {
   }
 }
 
+export const CategorySortMode = Object.freeze({
+  NewestFirst:  'newest_first',
+  OldestFirst:  'oldest_first',
+  NameAsc:      'name_asc',
+  MostTasks:    'most_tasks',
+})
+
+export const CategorySortModeLabel = Object.freeze({
+  [CategorySortMode.NewestFirst]: 'Newest first',
+  [CategorySortMode.OldestFirst]: 'Oldest first',
+  [CategorySortMode.NameAsc]:     'A–Z',
+  [CategorySortMode.MostTasks]:   'Most tasks',
+})
+
 const SORT_STORAGE_KEY = 'timespan:sortMode'
+const CAT_SORT_STORAGE_KEY = 'timespan:categorySortMode'
 
 function loadSortMode() {
   try {
@@ -74,11 +89,19 @@ function loadSortMode() {
   } catch { return SortMode.RecentActivity }
 }
 
+function loadCategorySortMode() {
+  try {
+    const v = localStorage.getItem(CAT_SORT_STORAGE_KEY)
+    return Object.values(CategorySortMode).includes(v) ? v : CategorySortMode.NewestFirst
+  } catch { return CategorySortMode.NewestFirst }
+}
+
 export const useTaskStore = defineStore('tasks', () => {
   const tasks = ref([])
   const categories = ref([])
   const searchTerm = ref('')
   const sortMode = ref(loadSortMode())
+  const categorySortMode = ref(loadCategorySortMode())
 
   // Case-insensitive substring match on title or description.
   // Done in memory (not via SQL LIKE/ILIKE) because SQLite's LIKE is ASCII-only
@@ -108,6 +131,11 @@ export const useTaskStore = defineStore('tasks', () => {
     try { localStorage.setItem(SORT_STORAGE_KEY, mode) } catch {}
   }
 
+  function setCategorySortMode(mode) {
+    categorySortMode.value = mode
+    try { localStorage.setItem(CAT_SORT_STORAGE_KEY, mode) } catch {}
+  }
+
   function groupByCategory(taskList) {
     const map = new Map()
     for (const task of taskList) {
@@ -126,7 +154,16 @@ export const useTaskStore = defineStore('tasks', () => {
       if (!a.category && !b.category) return 0
       if (!a.category) return 1
       if (!b.category) return -1
-      return a.category.name.localeCompare(b.category.name)
+      switch (categorySortMode.value) {
+        case CategorySortMode.OldestFirst:
+          return new Date(a.category.createdAt) - new Date(b.category.createdAt)
+        case CategorySortMode.NameAsc:
+          return a.category.name.localeCompare(b.category.name)
+        case CategorySortMode.MostTasks:
+          return b.tasks.length - a.tasks.length
+        default:
+          return new Date(b.category.createdAt) - new Date(a.category.createdAt)
+      }
     })
   }
 
@@ -145,8 +182,7 @@ export const useTaskStore = defineStore('tasks', () => {
   async function createCategory(name) {
     const cat = await CreateCategory(name)
     if (cat) {
-      categories.value.push(cat)
-      categories.value.sort((a, b) => a.name.localeCompare(b.name))
+      categories.value.unshift(cat)
     }
     return cat
   }
@@ -156,7 +192,6 @@ export const useTaskStore = defineStore('tasks', () => {
     if (cat) {
       const idx = categories.value.findIndex(c => c.id === id)
       if (idx !== -1) categories.value[idx] = cat
-      categories.value.sort((a, b) => a.name.localeCompare(b.name))
     }
     return cat
   }
@@ -251,6 +286,8 @@ export const useTaskStore = defineStore('tasks', () => {
     searchTerm,
     sortMode,
     setSortMode,
+    categorySortMode,
+    setCategorySortMode,
     activeTasks,
     finishedTasks,
     activeByCategory,

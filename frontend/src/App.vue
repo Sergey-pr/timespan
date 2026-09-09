@@ -40,22 +40,40 @@
 
       <!-- Search + Sort -->
       <div class="toolbar-row">
-        <input
-          v-model="store.searchTerm"
-          class="task-search"
-          type="search"
-          placeholder="Search tasks…"
-          autocomplete="off"
-        />
-        <select
-          class="sort-select"
-          :value="store.sortMode"
-          @change="store.setSortMode($event.target.value)"
-        >
-          <option v-for="(label, key) in SortModeLabel" :key="key" :value="key">
-            {{ label }}
-          </option>
-        </select>
+        <div class="sort-group sort-group--stretch">
+          <span class="sort-label">Search</span>
+          <input
+            v-model="store.searchTerm"
+            class="task-search"
+            type="search"
+            placeholder="Task name"
+            autocomplete="off"
+          />
+        </div>
+        <div class="sort-group">
+          <span class="sort-label">Categories</span>
+          <select
+            class="sort-select"
+            :value="store.categorySortMode"
+            @change="store.setCategorySortMode($event.target.value)"
+          >
+            <option v-for="(label, key) in CategorySortModeLabel" :key="key" :value="key">
+              {{ label }}
+            </option>
+          </select>
+        </div>
+        <div class="sort-group">
+          <span class="sort-label">Tasks</span>
+          <select
+            class="sort-select"
+            :value="store.sortMode"
+            @change="store.setSortMode($event.target.value)"
+          >
+            <option v-for="(label, key) in SortModeLabel" :key="key" :value="key">
+              {{ label }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <p
@@ -148,7 +166,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useTaskStore, SortMode, SortModeLabel } from './stores/taskStore.js'
+import { useTaskStore, SortMode, SortModeLabel, CategorySortModeLabel } from './stores/taskStore.js'
 import TaskCard from './components/TaskCard.vue'
 import CategoriesModal from './components/CategoriesModal.vue'
 import { formatElapsed } from './utils/time.js'
@@ -160,7 +178,20 @@ const newDescription = ref('')
 const newCategoryId = ref(null)
 const doneOpen = ref(false)
 const showCategoryModal = ref(false)
-const collapsedGroups = ref(new Set())
+const COLLAPSED_STORAGE_KEY = 'timespan:collapsedGroups'
+
+function loadCollapsed() {
+  try {
+    const raw = localStorage.getItem(COLLAPSED_STORAGE_KEY)
+    return raw ? new Set(JSON.parse(raw)) : new Set()
+  } catch { return new Set() }
+}
+
+function saveCollapsed(set) {
+  try { localStorage.setItem(COLLAPSED_STORAGE_KEY, JSON.stringify([...set])) } catch {}
+}
+
+const collapsedGroups = ref(loadCollapsed())
 const exporting = ref(false)
 
 const toast = ref(null)
@@ -193,8 +224,8 @@ function toggleGroup(key) {
   } else {
     collapsedGroups.value.add(key)
   }
-  // trigger reactivity
   collapsedGroups.value = new Set(collapsedGroups.value)
+  saveCollapsed(collapsedGroups.value)
 }
 
 function groupKey(group, prefix) {

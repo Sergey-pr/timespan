@@ -105,7 +105,7 @@ export function FinishTask(id) {
 }
 
 /**
- * GetCategories returns all categories sorted alphabetically.
+ * GetCategories returns all categories sorted by newest first.
  * @returns {$CancellablePromise<$models.Category[]>}
  */
 export function GetCategories() {

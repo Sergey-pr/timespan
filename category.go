@@ -17,11 +17,11 @@ type Category struct {
 	CreatedAt time.Time `db:"created_at" json:"createdAt"  goqu:"skipupdate"`
 }
 
-// ListCategories returns all categories sorted alphabetically.
+// ListCategories returns all categories sorted by newest first.
 func ListCategories() ([]Category, error) {
 	var cats []Category
 	err := goquDB.From(categoryTable).
-		Order(goqu.I("name").Asc()).
+		Order(goqu.I("created_at").Desc()).
 		ScanStructs(&cats)
 	if cats == nil {
 		cats = []Category{}

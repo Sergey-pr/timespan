@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-// GetCategories returns all categories sorted alphabetically.
+// GetCategories returns all categories sorted by newest first.
 func (a *App) GetCategories() []Category {
 	cats, err := ListCategories()
 	if err != nil {
