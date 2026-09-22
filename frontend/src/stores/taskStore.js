@@ -126,9 +126,23 @@ export const useTaskStore = defineStore('tasks', () => {
     tasks.value.find(t => t.status === TaskStatus.StatusActive) ?? null
   )
 
+  // Positions are decided when the list itself changes, so starting or ticking
+  // a task never moves it.
+  const order = ref(new Map())
+
+  function refreshOrder() {
+    const sorted = [...tasks.value].sort(taskComparator(sortMode.value))
+    order.value = new Map(sorted.map((t, i) => [t.id, i]))
+  }
+
+  function orderOf(task) {
+    return order.value.get(task.id) ?? Number.MAX_SAFE_INTEGER
+  }
+
   function setSortMode(mode) {
     sortMode.value = mode
     try { localStorage.setItem(SORT_STORAGE_KEY, mode) } catch {}
+    refreshOrder()
   }
 
   function setCategorySortMode(mode) {
@@ -146,9 +160,8 @@ export const useTaskStore = defineStore('tasks', () => {
       }
       map.get(key).tasks.push(task)
     }
-    const cmp = taskComparator(sortMode.value)
     for (const group of map.values()) {
-      group.tasks.sort(cmp)
+      group.tasks.sort((a, b) => orderOf(a) - orderOf(b))
     }
     return [...map.values()].sort((a, b) => {
       if (!a.category && !b.category) return 0
@@ -173,6 +186,7 @@ export const useTaskStore = defineStore('tasks', () => {
   async function loadTasks() {
     tasks.value = await GetTasks()
     tasks.value.forEach(resetSegment)
+    refreshOrder()
   }
 
   async function loadCategories() {
@@ -207,6 +221,7 @@ export const useTaskStore = defineStore('tasks', () => {
     if (task) {
       tasks.value.unshift(task)
       resetSegment(task)
+      refreshOrder()
     }
     return task
   }
@@ -231,7 +246,10 @@ export const useTaskStore = defineStore('tasks', () => {
 
   async function editTask(id, title, description, categoryId) {
     const updated = await EditTask(id, title, description, categoryId ?? 0)
-    if (updated) applyUpdate(updated)
+    if (updated) {
+      applyUpdate(updated)
+      refreshOrder()
+    }
     return updated
   }
 
@@ -272,6 +290,7 @@ export const useTaskStore = defineStore('tasks', () => {
     } else {
       // task moved back from finished to active (e.g. restarted)
       tasks.value.unshift(updated)
+      refreshOrder()
     }
   }
 
