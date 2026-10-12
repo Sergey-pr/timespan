@@ -1,13 +1,13 @@
 [Desktop Entry]
 Version=1.0
-Name=My Product
-Comment=A mytest application
+Name=TimeSpan
+Comment=A task timings management app
 # The Exec line includes %u to pass the URL to the application
-Exec=/usr/local/bin/mytest %u
+Exec=/usr/local/bin/timespan %u
 Terminal=false
 Type=Application
-Icon=mytest
+Icon=timespan
 Categories=Utility;
-StartupWMClass=mytest
+StartupWMClass=timespan
 
  

@@ -8,27 +8,27 @@
         AllowPromptForPassword="false">
     </Settings>
     <Installer
-        Path="mytest"
+        Path="timespan"
         Arguments=""
-        InstallLocation="C:\Program Files\My Company\My Product">
+        InstallLocation="C:\Program Files\SergeiPro\TimeSpan">
     </Installer>
     <PackageInformation
-        PackageName="My Product"
-        PackageDisplayName="My Product"
-        PublisherName="CN=My Company"
-        PublisherDisplayName="My Company"
-        Version="0.1.0.0"
-        PackageDescription="A mytest application">
+        PackageName="TimeSpan"
+        PackageDisplayName="TimeSpan"
+        PublisherName="CN=SergeiPro"
+        PublisherDisplayName="SergeiPro"
+        Version="0.0.1.0"
+        PackageDescription="A task timings management app">
         <Capabilities>
             <Capability Name="runFullTrust" />
             
         </Capabilities>
         <Applications>
             <Application
-                Id="com.example.mytest"
-                Description="A mytest application"
-                DisplayName="My Product"
-                ExecutableName="mytest"
+                Id="com.timespan.app"
+                Description="A task timings management app"
+                DisplayName="TimeSpan"
+                ExecutableName="timespan"
                 EntryPoint="Windows.FullTrustApplication">
                 
             </Application>
@@ -41,13 +41,13 @@
         </Dependencies>
         <Properties>
             <Framework>false</Framework>
-            <DisplayName>My Product</DisplayName>
-            <PublisherDisplayName>My Company</PublisherDisplayName>
-            <Description>A mytest application</Description>
+            <DisplayName>TimeSpan</DisplayName>
+            <PublisherDisplayName>SergeiPro</PublisherDisplayName>
+            <Description>A task timings management app</Description>
             <Logo>Assets\AppIcon.png</Logo>
         </Properties>
     </PackageInformation>
-    <SaveLocation PackagePath="mytest.msix" />
+    <SaveLocation PackagePath="timespan.msix" />
     <PackageIntegrity>
         <CertificatePath></CertificatePath>
     </PackageIntegrity>
